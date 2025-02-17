@@ -7,6 +7,9 @@
 # BlueJ files
 *.ctxt
 
+# Jar files
+target/
+
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
@@ -25,3 +28,7 @@ replay_pid*
 
 .DS_Store
 .idea
+.settings
+.classpath
+.factorypath
+.project
