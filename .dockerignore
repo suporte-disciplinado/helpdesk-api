@@ -1,0 +1,8 @@
+*.md
+*.txt
+.idea
+.git
+.DS_Store
+auto-compile.sh
+Dockerfile
+Dockerfile.*
