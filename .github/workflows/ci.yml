@@ -3,6 +3,9 @@ name: Java CI/CD
 on:
   pull_request:
     branches: [ "main" ]
+    paths:
+      - '**/*.java'
+      - 'pom.xml'
 
 permissions:
   contents: read
@@ -13,14 +16,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       MIN_COVERAGE: 80
+      JAVA_VERSION: 21
       
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up JDK 23
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
       uses: actions/setup-java@v3
       with:
-        java-version: '23'
+        java-version: '${{ env.JAVA_VERSION }}'
         distribution: 'temurin'
         cache: maven
 
