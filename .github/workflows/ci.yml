@@ -1,8 +1,6 @@
 name: Java CI/CD
 
 on:
-  push:
-    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -57,6 +55,9 @@ jobs:
         path: ~/.m2
         key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-m2
+
+    - name: Echo coverage
+      run: echo "Coverage is ${{ steps.jacoco.outputs.coverage-overall }}%"
 
     - name: Fail PR if overall coverage is less than ${{ env.MIN_COVERAGE }}%
       if: ${{ steps.jacoco.outputs.coverage-overall < env.MIN_COVERAGE }}
