@@ -24,12 +24,6 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-
-    @GetMapping("/me")
-    public UserDetails currentUser(@AuthenticationPrincipal UserDetails user) {
-      return user;
-    }
-
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
