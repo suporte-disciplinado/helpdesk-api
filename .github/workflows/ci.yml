@@ -1,0 +1,71 @@
+name: Java CI/CD
+
+on:
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - '**/*.java'
+      - 'pom.xml'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    env:
+      MIN_COVERAGE: 80
+      JAVA_VERSION: 21
+      
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: '${{ env.JAVA_VERSION }}'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+
+    - name: Run tests with coverage
+      run: mvn verify
+
+    - name: Add coverage to PR
+      id: jacoco
+      uses: madrapps/jacoco-report@v1.7.1
+      with:
+        paths: ${{ github.workspace }}/target/site/jacoco/jacoco.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
+        min-coverage-overall: ${{ env.MIN_COVERAGE }}
+        min-coverage-changed-files: ${{ env.MIN_COVERAGE }}
+        title: '# 📊 Coverage Report'
+        update-comment: true
+        pass-emoji: ':green_circle:'
+        fail-emoji: ':red_circle:'
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: target/site/jacoco/jacoco.xml
+
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+
+    - name: Echo coverage
+      run: echo "Coverage is ${{ steps.jacoco.outputs.coverage-overall }}%"
+
+    - name: Fail PR if overall coverage is less than ${{ env.MIN_COVERAGE }}%
+      if: ${{ steps.jacoco.outputs.coverage-overall < env.MIN_COVERAGE }}
+      uses: actions/github-script@v6
+      with:
+        script: |
+          core.setFailed('Overall coverage is less than ${{ env.MIN_COVERAGE }}%!')
