@@ -1,7 +1,6 @@
 package com.suportedisciplinado.api.service;
 
 import com.suportedisciplinado.api.model.Category;
-import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 

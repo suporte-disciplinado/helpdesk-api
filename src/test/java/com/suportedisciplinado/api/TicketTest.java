@@ -6,8 +6,6 @@ import com.suportedisciplinado.api.model.Status;
 import com.suportedisciplinado.api.model.Ticket;
 import jakarta.validation.constraints.Min;
 import net.jqwik.api.*;
-import net.jqwik.api.constraints.AlphaChars;
-import net.jqwik.api.constraints.NumericChars;
 import net.jqwik.api.constraints.Positive;
 import org.checkerframework.common.value.qual.MinLen;
 
