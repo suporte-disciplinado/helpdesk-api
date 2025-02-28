@@ -2,6 +2,7 @@ package com.suportedisciplinado.api.controller;
 
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.service.TicketService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,33 +17,33 @@ public class TicketController{
         this.ticketService = ticketService;
     }
 
-    @PostMapping("/register/ticket")
-    public void createTicket(@RequestBody Ticket newTicket)
+    @PostMapping
+    public ResponseEntity<String> createTicket(@RequestBody Ticket newTicket)
     {
-        ticketService.createTicket(newTicket);
+        return ticketService.createTicket(newTicket);
     }
 
-    @PostMapping("/update/ticket")
-    public void updateTicket(@RequestBody Ticket updatedTicket)
+    @PutMapping
+    public ResponseEntity<String>  updateTicket(@RequestBody Ticket updatedTicket)
     {
-        ticketService.updateTicket(updatedTicket);
+        return ticketService.updateTicket(updatedTicket);
     }
 
-    @GetMapping("/search/tickets")
-    public List<Ticket> searchForAllTickets()
+    @GetMapping
+    public ResponseEntity<List<Ticket>> searchForAllTickets()
     {
         return ticketService.getAllTickets();
     }
 
-    @GetMapping("/search/ticket/{ticketId}")
-    public @ResponseBody Ticket searchForTicket (@PathVariable Long ticketId)
+    @GetMapping("/{ticketId}")
+    public ResponseEntity<Ticket> searchForTicket (@PathVariable Long ticketId)
     {
         return ticketService.getTicketById(ticketId);
     }
 
-    @DeleteMapping("/delete/ticket/{ticketId}")
-    public void deleteTicket(@PathVariable Long ticketId)
+    @DeleteMapping("/{ticketId}")
+    public ResponseEntity<String>  deleteTicket(@PathVariable Long ticketId)
     {
-        ticketService.deleteTicketById(ticketId);
+        return ticketService.deleteTicketById(ticketId);
     }
 }

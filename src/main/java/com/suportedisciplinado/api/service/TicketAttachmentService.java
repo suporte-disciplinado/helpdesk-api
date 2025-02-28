@@ -7,6 +7,7 @@ import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.repository.TicketAttachmentRepository;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,17 +34,17 @@ public class TicketAttachmentService
         this.userRepository = userRepository;
     }
 
-    public TicketAttachment getAttachmentById(Long attachmentId)
+    public ResponseEntity<TicketAttachment> getAttachmentById(Long attachmentId)
     throws NullPointerException
     {
-        Objects.requireNonNull(attachmentId, "O id do anexo informado está nulo, por favor informe um id válido!");
+        Objects.requireNonNull(attachmentId, "The attachment id informed is null, please insert a valid id!");
 
         TicketAttachment attachment = attachmentRepository.getOne(attachmentId);
         validateAttachment(attachment);
-        return attachment;
+        return ResponseEntity.ok(attachment);
     }
 
-    public void updateAttachment(TicketAttachment updatedAttachment)
+    public ResponseEntity<String> updateAttachment(TicketAttachment updatedAttachment)
     throws NullPointerException
     {
         validateAttachment(updatedAttachment);
@@ -60,17 +61,19 @@ public class TicketAttachmentService
         attachmentToUpdate.setFileType(updatedAttachment.getFileType());
 
         attachmentRepository.save(attachmentToUpdate);
+        return ResponseEntity.ok("Attachment updated successfully!");
     }
 
-    public List<TicketAttachment> getAllAttachments() {
-        return attachmentRepository.findAll();
+    public ResponseEntity<List<TicketAttachment>> getAllAttachments() {
+        return ResponseEntity.ok(attachmentRepository.findAll());
     }
 
-    public void deleteAttachmentById(Long id) {
+    public ResponseEntity<String> deleteAttachmentById(Long id) {
         attachmentRepository.deleteById(id);
+        return ResponseEntity.ok("Attachment deleted successfully!");
     }
 
-    public void createAttachment(TicketAttachment newAttachment) {
+    public ResponseEntity<String> createAttachment(TicketAttachment newAttachment) {
         validateAttachment(newAttachment);
 
         User user = userRepository.getOne(newAttachment.getUser().getId());
@@ -82,11 +85,12 @@ public class TicketAttachmentService
         newAttachment.setUser(user);
 
         attachmentRepository.saveAndFlush(newAttachment);
+        return ResponseEntity.ok("Attachment created successfully!");
     }
 
     private void validateAttachment(TicketAttachment attachment)
     throws NullPointerException
     {
-        Objects.requireNonNull(attachment, "O anexo fornecido não pode ser nulo, por favor forneca um anexo válido!");
+        Objects.requireNonNull(attachment, "The attachment received is null, please pass a valid attachment!");
     }
 }

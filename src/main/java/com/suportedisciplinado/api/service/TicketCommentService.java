@@ -4,6 +4,7 @@ import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,22 +28,22 @@ public class TicketCommentService
         this.ticketRepository = ticketRepository;
     }
 
-    public TicketComment getCommentById(Long commentId)
+    public ResponseEntity<TicketComment> getCommentById(Long commentId)
     throws NullPointerException
     {
-        Objects.requireNonNull(commentId, "O id do comentário informado está nulo, por favor informe um id válido!");
+        Objects.requireNonNull(commentId, "The comment id informed is null, please pass a valid id!");
 
         TicketComment comment = commentRepository.getOne(commentId);
         validateComment(comment);
-        return comment;
+        return ResponseEntity.ok(comment);
     }
 
-    public void updateComment(TicketComment updatedComment)
+    public ResponseEntity<String> updateComment(TicketComment updatedComment)
     throws NullPointerException
     {
         validateComment(updatedComment);
 
-        TicketComment commentToUpdate = getCommentById(updatedComment.getId());
+        TicketComment commentToUpdate = getCommentById(updatedComment.getId()).getBody();
         User user = userRepository.getOne(updatedComment.getUser().getId());
         Ticket ticket = ticketRepository.getOne(updatedComment.getTicket().getId());
 
@@ -51,17 +52,19 @@ public class TicketCommentService
         commentToUpdate.setUser(user);
 
         commentRepository.save(commentToUpdate);
+        return ResponseEntity.ok("Comment updated successfully!");
     }
 
-    public List<TicketComment> getAllComments() {
-        return commentRepository.findAll();
+    public ResponseEntity<List<TicketComment>> getAllComments() {
+        return ResponseEntity.ok(commentRepository.findAll());
     }
 
-    public void deleteCommentById(Long id) {
+    public ResponseEntity<String> deleteCommentById(Long id) {
         commentRepository.deleteById(id);
+        return ResponseEntity.ok("Comment deleted successfully!");
     }
 
-    public void createComment(TicketComment newComment) {
+    public ResponseEntity<String> createComment(TicketComment newComment) {
         validateComment(newComment);
 
         User user = userRepository.getOne(newComment.getUser().getId());
@@ -71,11 +74,12 @@ public class TicketCommentService
         newComment.setUser(user);
 
         commentRepository.saveAndFlush(newComment);
+        return ResponseEntity.ok("Comment created successfully!");
     }
 
     private void validateComment(TicketComment comment)
     throws NullPointerException
     {
-        Objects.requireNonNull(comment, "O comentário não pode ser nulo, por favor forneca um comentário válido!");
+        Objects.requireNonNull(comment, "The comment informed is null, please pass a valid comment!");
     }
 }

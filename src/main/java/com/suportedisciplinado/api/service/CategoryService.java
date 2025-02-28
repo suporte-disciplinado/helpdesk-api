@@ -2,6 +2,7 @@ package com.suportedisciplinado.api.service;
 
 import com.suportedisciplinado.api.model.Category;
 import com.suportedisciplinado.api.repository.CategoryRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,44 +17,47 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
-    public Category getCategoryById(Long categoryId)
+    public ResponseEntity<Category> getCategoryById(Long categoryId)
     throws NullPointerException
     {
-        Objects.requireNonNull(categoryId, "O id da categoria informada está nulo, por favor informe um id válido!");
+        Objects.requireNonNull(categoryId, "The category id informed is null, please pass a valid id!");
 
         Category category = categoryRepository.getOne(categoryId);
         validateCategory(category);
-        return category;
+        return ResponseEntity.ok(category);
     }
 
-    public void updateCategory(Category updatedCategory)
+    public ResponseEntity<String> updateCategory(Category updatedCategory)
     throws NullPointerException
     {
         validateCategory(updatedCategory);
-        Category categoryToUpdate = getCategoryById(updatedCategory.getId());
+        Category categoryToUpdate = getCategoryById(updatedCategory.getId()).getBody();
 
         categoryToUpdate.setName(updatedCategory.getName());
         categoryToUpdate.setDescription(updatedCategory.getDescription());
 
         categoryRepository.save(categoryToUpdate);
+        return ResponseEntity.ok("Category updated successfully!");
     }
 
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public ResponseEntity<List<Category>> getAllCategories() {
+        return ResponseEntity.ok(categoryRepository.findAll());
     }
 
-    public void deleteCategoryById(Long id) {
+    public ResponseEntity<String> deleteCategoryById(Long id) {
         categoryRepository.deleteById(id);
+        return ResponseEntity.ok("Category deleted successfully!");
     }
 
-    public void createCategory(Category newCategory) {
+    public ResponseEntity<String> createCategory(Category newCategory) {
         validateCategory(newCategory);
         categoryRepository.saveAndFlush(newCategory);
+        return ResponseEntity.ok("Category created successfully!");
     }
 
     private void validateCategory(Category category)
     throws NullPointerException
     {
-        Objects.requireNonNull(category, "A categoria não pode ser nula, por favor forneca uma categoria válida!");
+        Objects.requireNonNull(category, "The category informed is null, please pass a valid category!");
     }
 }

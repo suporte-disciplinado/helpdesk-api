@@ -4,6 +4,7 @@ import com.suportedisciplinado.api.model.Category;
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.repository.CategoryRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,22 +28,22 @@ public class TicketService
         this.categoryRepository = categoryRepository;
     }
 
-    public Ticket getTicketById(Long ticketId)
+    public ResponseEntity<Ticket> getTicketById(Long ticketId)
     throws IllegalArgumentException, NullPointerException
     {
-        Objects.requireNonNull(ticketId, "O id do ticket informado está nulo, por favor informe um id válido!");
+        Objects.requireNonNull(ticketId, "The ticket id informed is null, please pass a valid id!");
 
         Ticket ticket = ticketRepository.getOne(ticketId);
         validateTicket(ticket);
-        return ticket;
+        return ResponseEntity.ok(ticket);
     }
 
-    public void updateTicket(Ticket updatedTicket)
+    public ResponseEntity<String> updateTicket(Ticket updatedTicket)
     throws NullPointerException
     {
         validateTicket(updatedTicket);
 
-        Ticket ticketToUpdate = getTicketById(updatedTicket.getId());
+        Ticket ticketToUpdate = getTicketById(updatedTicket.getId()).getBody();
         User user = userRepository.getOne(updatedTicket.getUser().getId());
         User assignedAgent = userRepository.getOne(updatedTicket.getAssignedAgent().getId());
         Category category = categoryRepository.getOne(updatedTicket.getCategory().getId());
@@ -57,17 +58,19 @@ public class TicketService
         ticketToUpdate.setStatus(updatedTicket.getStatus());
 
         ticketRepository.save(ticketToUpdate);
+        return ResponseEntity.ok("Ticket updated successfully!");
     }
 
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+    public ResponseEntity<List<Ticket>> getAllTickets() {
+        return ResponseEntity.ok(ticketRepository.findAll());
     }
 
-    public void deleteTicketById(Long id) {
+    public ResponseEntity<String> deleteTicketById(Long id) {
         ticketRepository.deleteById(id);
+        return ResponseEntity.ok("Ticket deleted successfully!");
     }
 
-    public void createTicket(Ticket newTicket) {
+    public ResponseEntity<String> createTicket(Ticket newTicket) {
         validateTicket(newTicket);
 
         User user = userRepository.getOne(newTicket.getUser().getId());
@@ -79,11 +82,12 @@ public class TicketService
         newTicket.setCategory(category);
 
         ticketRepository.saveAndFlush(newTicket);
+        return ResponseEntity.ok("Ticket created successfully!");
     }
 
     private void validateTicket(Ticket ticket)
     throws NullPointerException
     {
-        Objects.requireNonNull(ticket, "O ticket não pode ser nulo, por favor forneca um ticket válido!");
+        Objects.requireNonNull(ticket, "The ticket received is null, please pass a valid ticket!");
     }
 }
