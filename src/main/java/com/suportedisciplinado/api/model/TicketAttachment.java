@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Check;
 
 import java.time.LocalDateTime;
 
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
+@Check(constraints = "(ticket_id IS NOT NULL AND comment_id IS NULL) or (ticket_id IS NULL and comment_id IS NOT NULL)")
 public class TicketAttachment
 {
     @Id

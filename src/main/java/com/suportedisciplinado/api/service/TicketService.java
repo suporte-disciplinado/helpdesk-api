@@ -1,15 +1,90 @@
 package com.suportedisciplinado.api.service;
 
+import com.suportedisciplinado.api.model.Category;
+import com.suportedisciplinado.api.model.Ticket;
+import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.repository.CategoryRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class TicketService
 {
     private final TicketRepository ticketRepository;
+    private final UserRepository userRepository;
+    private final CategoryRepository categoryRepository;
 
-    public TicketService(TicketRepository ticketRepository)
+    public TicketService(
+        TicketRepository ticketRepository,
+        CategoryRepository categoryRepository,
+        UserRepository userRepository
+    )
     {
         this.ticketRepository = ticketRepository;
+        this.userRepository = userRepository;
+        this.categoryRepository = categoryRepository;
+    }
+
+    public Ticket getTicketById(Long ticketId)
+    throws IllegalArgumentException, NullPointerException
+    {
+        Objects.requireNonNull(ticketId, "O id do ticket informado está nulo, por favor informe um id válido!");
+
+        Ticket ticket = ticketRepository.getOne(ticketId);
+        validateTicket(ticket);
+        return ticket;
+    }
+
+    public void updateTicket(Ticket updatedTicket)
+    throws NullPointerException
+    {
+        validateTicket(updatedTicket);
+
+        Ticket ticketToUpdate = getTicketById(updatedTicket.getId());
+        User user = userRepository.getOne(updatedTicket.getUser().getId());
+        User assignedAgent = userRepository.getOne(updatedTicket.getAssignedAgent().getId());
+        Category category = categoryRepository.getOne(updatedTicket.getCategory().getId());
+
+        ticketToUpdate.setUser(user);
+        ticketToUpdate.setAssignedAgent(assignedAgent);
+        ticketToUpdate.setCategory(category);
+
+        ticketToUpdate.setTitle(updatedTicket.getTitle());
+        ticketToUpdate.setDescription(updatedTicket.getDescription());
+        ticketToUpdate.setPriority(updatedTicket.getPriority());
+        ticketToUpdate.setStatus(updatedTicket.getStatus());
+
+        ticketRepository.save(ticketToUpdate);
+    }
+
+    public List<Ticket> getAllTickets() {
+        return ticketRepository.findAll();
+    }
+
+    public void deleteTicketById(Long id) {
+        ticketRepository.deleteById(id);
+    }
+
+    public void createTicket(Ticket newTicket) {
+        validateTicket(newTicket);
+
+        User user = userRepository.getOne(newTicket.getUser().getId());
+        User assignedAgent = userRepository.getOne(newTicket.getAssignedAgent().getId());
+        Category category = categoryRepository.getOne(newTicket.getCategory().getId());
+
+        newTicket.setUser(user);
+        newTicket.setAssignedAgent(assignedAgent);
+        newTicket.setCategory(category);
+
+        ticketRepository.saveAndFlush(newTicket);
+    }
+
+    private void validateTicket(Ticket ticket)
+    throws NullPointerException
+    {
+        Objects.requireNonNull(ticket, "O ticket não pode ser nulo, por favor forneca um ticket válido!");
     }
 }
