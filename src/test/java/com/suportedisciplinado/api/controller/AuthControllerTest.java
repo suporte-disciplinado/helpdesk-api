@@ -9,7 +9,8 @@ import com.suportedisciplinado.api.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -22,8 +23,8 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class AuthControllerTest {
 
     @Autowired
@@ -70,4 +71,24 @@ public class AuthControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(content().string("Email already exists"));
     }
+
+	public MockMvc getMockMvc() {
+		return mockMvc;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
+
+	public PasswordEncoder getPasswordEncoder() {
+		return passwordEncoder;
+	}
+
+	public CustomUserDetailsService getCustomUserDetailsService() {
+		return customUserDetailsService;
+	}
+
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
 }

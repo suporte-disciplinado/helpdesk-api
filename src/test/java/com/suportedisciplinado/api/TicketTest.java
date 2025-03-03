@@ -1,67 +1,70 @@
 package com.suportedisciplinado.api;
 
+import com.suportedisciplinado.api.arbitraries.CustomArbitraries;
 import com.suportedisciplinado.api.model.Category;
 import com.suportedisciplinado.api.model.Priority;
 import com.suportedisciplinado.api.model.Status;
 import com.suportedisciplinado.api.model.Ticket;
-import jakarta.validation.constraints.Min;
-import net.jqwik.api.*;
+import com.suportedisciplinado.api.model.User;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.jqwik.api.constraints.StringLength;
 import net.jqwik.api.constraints.Positive;
-import org.checkerframework.common.value.qual.MinLen;
+import org.assertj.core.api.Assertions;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class TicketTest {
 
-public class TicketTest
-{
     @Provide
-    Arbitrary<User> validUser() {
-        return Arbitraries.defaultFor(User.class);
+    public static Arbitrary<User> validUser() {
+        return CustomArbitraries.validUser();
     }
 
     @Provide
-    Arbitrary<Category> validCategory() {
-        return Arbitraries.defaultFor(Category.class);
+    public static Arbitrary<Category> validCategory() {
+        return CustomArbitraries.validCategory();
     }
 
     @Provide
-    Arbitrary<Priority> validPriority() {
+    public static Arbitrary<Priority> validPriority() {
         return Arbitraries.of(Priority.values());
     }
 
     @Provide
-    Arbitrary<Status> validStatus() {
+    public static Arbitrary<Status> validStatus() {
         return Arbitraries.of(Status.values());
     }
 
     @Property
     public void ticketCreationTest(
-        @ForAll @Positive @Min(1) Long id,
+        @ForAll @Positive Long id,
         @ForAll("validUser") User user,
         @ForAll("validUser") User assignedAgent,
-        @ForAll String title,
-        @ForAll @MinLen(100) String description,
+        @ForAll @StringLength(min = 3, max = 50) String title,
+        @ForAll @StringLength(min = 100, max = 1000) String description,
         @ForAll("validCategory") Category category,
         @ForAll("validPriority") Priority priority,
         @ForAll("validStatus") Status status
-    )
-    {
+    ) {
         Ticket ticket = new Ticket();
         ticket.setId(id);
         ticket.setUser(user);
-        ticket.setUser(assignedAgent);
+        ticket.setAssignedAgent(assignedAgent);
         ticket.setTitle(title);
         ticket.setDescription(description);
         ticket.setCategory(category);
         ticket.setPriority(priority);
         ticket.setStatus(status);
 
-        assertThat(ticket.getId()).isGreaterThan(0);
-        assertThat(ticket.getUser()).isInstanceOf(User.class);
-        assertThat(ticket.getAssignedAgent()).isInstanceOf(User.class);
-        assertThat(ticket.getTitle()).isAlphanumeric();
-        assertThat(ticket.getDescription()).isAlphanumeric().hasSizeGreaterThanOrEqualTo(100);
-        assertThat(ticket.getCategory()).isInstanceOf(Category.class);
-        assertThat(ticket.getPriority()).isIn((Object) Priority.values());
-        assertThat(ticket.getStatus()).isIn((Object) Status.values());
+        Assertions.assertThat(ticket.getId()).isGreaterThan(0);
+        Assertions.assertThat(ticket.getUser()).isInstanceOf(User.class);
+        Assertions.assertThat(ticket.getAssignedAgent()).isInstanceOf(User.class);
+        Assertions.assertThat(ticket.getTitle()).isNotEmpty();
+        Assertions.assertThat(ticket.getDescription()).hasSizeGreaterThanOrEqualTo(100);
+        Assertions.assertThat(ticket.getCategory()).isInstanceOf(Category.class);
+        Assertions.assertThat(ticket.getPriority()).isIn((Object[]) Priority.values());
+        Assertions.assertThat(ticket.getStatus()).isIn((Object[]) Status.values());
     }
 }

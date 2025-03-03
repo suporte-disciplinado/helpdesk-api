@@ -1,22 +1,31 @@
 package com.suportedisciplinado.api;
 
-import com.suportedisciplinado.api.model.*;
-import jakarta.validation.constraints.Min;
-import net.jqwik.api.*;
-import net.jqwik.api.constraints.Positive;
-import org.checkerframework.common.value.qual.MinLen;
-
 import static org.assertj.core.api.Assertions.assertThat;
+
+import com.suportedisciplinado.api.arbitraries.CustomArbitraries;
+import com.suportedisciplinado.api.model.Ticket;
+import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.User;
+
+import jakarta.validation.constraints.Min;
+import net.jqwik.api.Arbitraries;
+import net.jqwik.api.Arbitrary;
+import net.jqwik.api.ForAll;
+import net.jqwik.api.Property;
+import net.jqwik.api.Provide;
+import net.jqwik.api.constraints.AlphaChars;
+import net.jqwik.api.constraints.Positive;
+import net.jqwik.api.constraints.StringLength;
 
 public class TicketCommentTest {
     @Provide
     Arbitrary<User> validUser() {
-        return Arbitraries.defaultFor(User.class);
+        return CustomArbitraries.validUser();
     }
 
     @Provide
     Arbitrary<Ticket> validTicket() {
-        return Arbitraries.defaultFor(Ticket.class);
+        return CustomArbitraries.validTicket();
     }
 
     @Property
@@ -24,7 +33,7 @@ public class TicketCommentTest {
             @ForAll @Positive @Min(1) Long id,
             @ForAll("validTicket") Ticket ticket,
             @ForAll("validUser") User user,
-            @ForAll @MinLen(100) String comment
+            @ForAll @StringLength(min = 100) @AlphaChars String comment
     )
     {
         TicketComment ticketComment = new TicketComment();

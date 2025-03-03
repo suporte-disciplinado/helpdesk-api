@@ -1,12 +1,10 @@
 package com.suportedisciplinado.api.service;
 
-import com.suportedisciplinado.api.model.Category;
-import com.suportedisciplinado.api.model.Ticket;
-import com.suportedisciplinado.api.model.TicketAttachment;
-import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.*;
 import com.suportedisciplinado.api.repository.TicketAttachmentRepository;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
+import com.suportedisciplinado.api.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +47,7 @@ public class TicketAttachmentService
     {
         validateAttachment(updatedAttachment);
 
-        TicketAttachment attachmentToUpdate = getAttachmentById(updatedAttachment.getId());
+        TicketAttachment attachmentToUpdate = getAttachmentById(updatedAttachment.getId()).getBody();
         User user = userRepository.getOne(updatedAttachment.getUser().getId());
         TicketComment ticketComment = ticketCommentRepository.getOne(updatedAttachment.getComment().getId());
         Ticket ticket = ticketRepository.getOne(updatedAttachment.getTicket().getId());

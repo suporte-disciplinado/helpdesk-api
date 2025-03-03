@@ -31,15 +31,9 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-api</artifactId>
-			<version>5.8.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>net.jqwik</groupId>
 			<artifactId>jqwik</artifactId>
-			<version>1.7.3</version>
+			<version>1.8.5</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
