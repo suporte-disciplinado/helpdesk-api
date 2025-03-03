@@ -4,6 +4,7 @@ import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
+import com.suportedisciplinado.api.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
