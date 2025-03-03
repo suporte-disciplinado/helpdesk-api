@@ -2,6 +2,7 @@ package com.suportedisciplinado.api.service;
 
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import com.suportedisciplinado.api.repository.UserRepository;

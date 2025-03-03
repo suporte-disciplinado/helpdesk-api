@@ -1,9 +1,6 @@
 package com.suportedisciplinado.api.service;
 
-import com.suportedisciplinado.api.model.Category;
-import com.suportedisciplinado.api.model.Ticket;
-import com.suportedisciplinado.api.model.TicketAttachment;
-import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.*;
 import com.suportedisciplinado.api.repository.TicketAttachmentRepository;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
