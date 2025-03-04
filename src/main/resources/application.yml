@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: API Suporte e Helpdesk
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
