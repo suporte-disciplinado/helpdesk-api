@@ -1,11 +1,17 @@
 package com.suportedisciplinado.api.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Set;
 
 @Entity
 @Table(name = "knowledge_base_tag")
+@Getter
+@Setter
+@NoArgsConstructor
 public class KnowledgeBaseTag {
 
     @Id
@@ -14,7 +20,4 @@ public class KnowledgeBaseTag {
 
     @Column
     private String description;
-
-    @ManyToMany(mappedBy = "tags")
-    private Set<KnowledgeBase> knowledgeBase;
 }

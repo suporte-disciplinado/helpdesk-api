@@ -1,12 +1,18 @@
 package com.suportedisciplinado.api.model;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
 @Table(name = "knowledge_base")
+@Getter
+@Setter
+@NoArgsConstructor
 public class KnowledgeBase {
 
     @Id
@@ -15,7 +21,7 @@ public class KnowledgeBase {
 
     @ManyToOne
     @JoinColumn(name = "category_id")
-    private KnowledgeBaseCategory knowledgeBaseCategory;
+    private KnowledgeBaseCategory category;
 
     @Column
     private String description;
