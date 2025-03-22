@@ -20,4 +20,9 @@ public class KnowledgeBaseTag {
 
     @Column
     private String description;
+
+    public KnowledgeBaseTag(Long id, String description) {
+        this.id = id;
+        this.description = description;
+    }
 }

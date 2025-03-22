@@ -40,6 +40,9 @@ public class KnowledgeBase {
     @Column
     private String author;
 
+    @Column
+    private Boolean active;
+
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 }
