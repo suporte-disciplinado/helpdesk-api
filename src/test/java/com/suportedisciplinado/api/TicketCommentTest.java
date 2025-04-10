@@ -16,6 +16,9 @@ import net.jqwik.api.Provide;
 import net.jqwik.api.constraints.AlphaChars;
 import net.jqwik.api.constraints.Positive;
 import net.jqwik.api.constraints.StringLength;
+import org.junit.jupiter.api.Test;
+
+import java.time.LocalDateTime;
 
 public class TicketCommentTest {
     @Provide
@@ -46,5 +49,42 @@ public class TicketCommentTest {
         assertThat(ticketComment.getUser()).isInstanceOf(User.class);
         assertThat(ticketComment.getTicket()).isInstanceOf(Ticket.class);
         assertThat(ticketComment.getComment()).isAlphanumeric().hasSizeGreaterThanOrEqualTo(100);
+    }
+
+    @Test
+    public void testDefaultInitialization() {
+        TicketComment comment = new TicketComment();
+        assertThat(comment.getCreatedAt()).isNotNull();
+        assertThat(comment.getUpdatedAt()).isNull();
+        assertThat(comment.getDeletedAt()).isNull();
+        assertThat(comment.getCommentAttachmentsList()).isNotNull().isEmpty();
+    }
+
+    @Test
+    public void testPreUpdateSetsUpdatedAt() {
+        TicketComment comment = new TicketComment();
+        assertThat(comment.getUpdatedAt()).isNull();
+        comment.setUpdatedAt();
+        assertThat(comment.getUpdatedAt()).isNotNull();
+    }
+
+    @Test
+    public void testSettersAndGetters() {
+        TicketComment comment = new TicketComment();
+        Ticket ticket = new Ticket();
+        ticket.setId(1L);
+        User user = new User();
+        user.setId(1L);
+        comment.setId(1L);
+        comment.setTicket(ticket);
+        comment.setUser(user);
+        comment.setComment("Sample comment");
+        LocalDateTime deletedAt = LocalDateTime.now();
+        comment.setDeletedAt(deletedAt);
+        assertThat(comment.getId()).isEqualTo(1L);
+        assertThat(comment.getTicket()).isEqualTo(ticket);
+        assertThat(comment.getUser()).isEqualTo(user);
+        assertThat(comment.getComment()).isEqualTo("Sample comment");
+        assertThat(comment.getDeletedAt()).isEqualTo(deletedAt);
     }
 }

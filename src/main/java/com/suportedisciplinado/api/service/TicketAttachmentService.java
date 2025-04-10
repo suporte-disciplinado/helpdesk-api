@@ -37,7 +37,7 @@ public class TicketAttachmentService
     {
         Objects.requireNonNull(attachmentId, "The attachment id informed is null, please insert a valid id!");
 
-        TicketAttachment attachment = attachmentRepository.getOne(attachmentId);
+        TicketAttachment attachment = attachmentRepository.getReferenceById(attachmentId);
         validateAttachment(attachment);
         return ResponseEntity.ok(attachment);
     }
@@ -48,9 +48,9 @@ public class TicketAttachmentService
         validateAttachment(updatedAttachment);
 
         TicketAttachment attachmentToUpdate = getAttachmentById(updatedAttachment.getId()).getBody();
-        User user = userRepository.getOne(updatedAttachment.getUser().getId());
-        TicketComment ticketComment = ticketCommentRepository.getOne(updatedAttachment.getComment().getId());
-        Ticket ticket = ticketRepository.getOne(updatedAttachment.getTicket().getId());
+        User user = userRepository.getReferenceById(updatedAttachment.getUser().getId());
+        TicketComment ticketComment = ticketCommentRepository.getReferenceById(updatedAttachment.getComment().getId());
+        Ticket ticket = ticketRepository.getReferenceById(updatedAttachment.getTicket().getId());
 
         attachmentToUpdate.setTicket(ticket);
         attachmentToUpdate.setComment(ticketComment);
@@ -74,9 +74,9 @@ public class TicketAttachmentService
     public ResponseEntity<String> createAttachment(TicketAttachment newAttachment) {
         validateAttachment(newAttachment);
 
-        User user = userRepository.getOne(newAttachment.getUser().getId());
-        TicketComment ticketComment = ticketCommentRepository.getOne(newAttachment.getComment().getId());
-        Ticket ticket = ticketRepository.getOne(newAttachment.getTicket().getId());
+        User user = userRepository.getReferenceById(newAttachment.getUser().getId());
+        TicketComment ticketComment = ticketCommentRepository.getReferenceById(newAttachment.getComment().getId());
+        Ticket ticket = ticketRepository.getReferenceById(newAttachment.getTicket().getId());
 
         newAttachment.setTicket(ticket);
         newAttachment.setComment(ticketComment);
