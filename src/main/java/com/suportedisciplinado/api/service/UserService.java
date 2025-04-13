@@ -22,6 +22,10 @@ public class UserService {
         return ResponseEntity.ok(userRepository.findAll());
     }
 
+    public ResponseEntity<List<User>> getByNameOrEmailUsers(String search) {
+        return ResponseEntity.ok(userRepository.findByNameOrEmail(search));
+    }
+
     public ResponseEntity<Optional<User>> getUserById(Long id) {
         return ResponseEntity.ok(userRepository.findById(id));
     }

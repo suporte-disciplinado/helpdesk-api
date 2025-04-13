@@ -37,8 +37,11 @@ public class UserController {
     }
 
     @GetMapping("/api/user")
-    public ResponseEntity<List<User>> getAll() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<User>> getAll(@RequestParam(required = false) String search) {
+        if (search == null || search.isEmpty())
+            return userService.getAllUsers();
+
+        return userService.getByNameOrEmailUsers(search);
     }
 
     @GetMapping("/api/user/{id}")
