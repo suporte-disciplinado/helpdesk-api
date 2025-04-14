@@ -6,6 +6,7 @@ import com.suportedisciplinado.api.model.KnowledgeBaseTag;
 import jakarta.validation.constraints.Min;
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.Positive;
+import net.jqwik.api.constraints.StringLength;
 import org.checkerframework.common.value.qual.MinLen;
 
 import java.util.Set;
@@ -13,7 +14,7 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KnowledgeBaseTest {
-    
+
     @Provide
     Arbitrary<KnowledgeBaseCategory> validKnowledgeBaseCategory() {
         return Arbitraries.strings()
@@ -40,12 +41,20 @@ public class KnowledgeBaseTest {
                 });
     }
 
+    @Provide
+    Arbitrary<String> validDescriptions() {
+        return Arbitraries.strings()
+                .withChars('a', 'z') // restringe para caracteres alfabéticos
+                .ofMinLength(1)
+                .ofMaxLength(100);
+    }
+
     @Property
     void knowledgeBaseCreatedTest(
         @ForAll @Positive @Min(1) Long id,
-        @ForAll @MinLen(5) String description,
-        @ForAll @MinLen(100) String annotation,
-        @ForAll String author,
+        @ForAll("validDescriptions") @StringLength(min = 5) @MinLen(5) String description,
+        @ForAll("validDescriptions") @StringLength(min = 100) @MinLen(100) String annotation,
+        @ForAll("validDescriptions") @StringLength(min = 5) @MinLen(5) String author,
         @ForAll("validKnowledgeBaseCategory") KnowledgeBaseCategory category,
         @ForAll("validKnowledgeBaseTag") KnowledgeBaseTag tag
 
@@ -63,6 +72,7 @@ public class KnowledgeBaseTest {
         assertThat(knowledgeBase.getAnnotation()).isAlphabetic().hasSizeGreaterThanOrEqualTo(100);
         assertThat(knowledgeBase.getAuthor()).isAlphabetic();
         assertThat(knowledgeBase.getCategory()).isInstanceOf(KnowledgeBaseCategory.class);
-        assertThat(knowledgeBase.getTags()).isInstanceOf(KnowledgeBaseTag.class);
+        assertThat(knowledgeBase.getTags())
+                .allSatisfy(t -> assertThat(t).isInstanceOf(KnowledgeBaseTag.class));
     }
 }
