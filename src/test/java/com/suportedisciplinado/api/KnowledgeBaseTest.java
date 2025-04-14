@@ -13,19 +13,35 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KnowledgeBaseTest {
-
+    
     @Provide
     Arbitrary<KnowledgeBaseCategory> validKnowledgeBaseCategory() {
-        return Arbitraries.defaultFor(KnowledgeBaseCategory.class);
+        return Arbitraries.strings()
+                .withChars('a', 'z')
+                .ofMinLength(3)
+                .ofMaxLength(50)
+                .map(desc -> {
+                    KnowledgeBaseCategory cat = new KnowledgeBaseCategory();
+                    cat.setDescription(desc);
+                    return cat;
+                });
     }
 
     @Provide
     Arbitrary<KnowledgeBaseTag> validKnowledgeBaseTag() {
-        return Arbitraries.defaultFor(KnowledgeBaseTag.class);
+        return Arbitraries.strings()
+                .withChars('a', 'z') // apenas letras
+                .ofMinLength(3)
+                .ofMaxLength(50)
+                .map(desc -> {
+                    KnowledgeBaseTag tag = new KnowledgeBaseTag();
+                    tag.setDescription(desc);
+                    return tag;
+                });
     }
 
     @Property
-    public void knowledgeBaseCreatedTest(
+    void knowledgeBaseCreatedTest(
         @ForAll @Positive @Min(1) Long id,
         @ForAll @MinLen(5) String description,
         @ForAll @MinLen(100) String annotation,
