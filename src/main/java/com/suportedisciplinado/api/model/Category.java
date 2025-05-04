@@ -26,6 +26,6 @@ public class Category
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Ticket> ticketsList = new ArrayList<>();
+    //@OneToMany(mappedBy = "category", cascade = CascadeType.ALL, orphanRemoval = true)
+    //private List<Ticket> ticketsList = new ArrayList<>();
 }

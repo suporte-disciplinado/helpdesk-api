@@ -75,8 +75,14 @@ public class TicketAttachmentService
         validateAttachment(newAttachment);
 
         User user = userRepository.getReferenceById(newAttachment.getUser().getId());
-        TicketComment ticketComment = ticketCommentRepository.getReferenceById(newAttachment.getComment().getId());
-        Ticket ticket = ticketRepository.getReferenceById(newAttachment.getTicket().getId());
+
+        TicketComment ticketComment = null;
+        if (newAttachment.getComment() != null)
+            ticketComment = ticketCommentRepository.getReferenceById(newAttachment.getComment().getId());
+
+        Ticket ticket = null;
+        if (newAttachment.getTicket() != null)
+            ticket = ticketRepository.getReferenceById(newAttachment.getTicket().getId());
 
         newAttachment.setTicket(ticket);
         newAttachment.setComment(ticketComment);

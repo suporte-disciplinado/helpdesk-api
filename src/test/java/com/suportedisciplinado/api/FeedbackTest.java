@@ -1,6 +1,8 @@
 package com.suportedisciplinado.api;
 
+import com.suportedisciplinado.api.arbitraries.CustomArbitraries;
 import com.suportedisciplinado.api.model.*;
+
 import net.jqwik.api.*;
 import net.jqwik.api.constraints.*;
 import org.junit.jupiter.api.Assertions;
@@ -18,15 +20,15 @@ class FeedbackTest {
   Arbitrary<String> validComments() {
       return Arbitraries.strings().withCharRange('a', 'z').ofMinLength(5).ofMaxLength(500);
   }
-  
+
   @Provide
   Arbitrary<User> validUsers() {
-      return Arbitraries.defaultFor(User.class);
-  }
-  
+        return CustomArbitraries.validUser();
+    }
+
   @Provide
   Arbitrary<Ticket> validTickets() {
-      return Arbitraries.defaultFor(Ticket.class);
+      return CustomArbitraries.validTicket();
   }
   
   @Property

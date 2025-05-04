@@ -6,6 +6,7 @@ import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.repository.CategoryRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import com.suportedisciplinado.api.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +36,10 @@ public class TicketService
     {
         Objects.requireNonNull(ticketId, "The ticket id informed is null, please pass a valid id!");
 
-        Ticket ticket = ticketRepository.getOne(ticketId);
+        //Ticket ticket = ticketRepository.getOne(ticketId);
+        Ticket ticket = ticketRepository.findById(ticketId)
+                .orElseThrow(() -> new EntityNotFoundException("Ticket not found"));
+
         validateTicket(ticket);
         return ResponseEntity.ok(ticket);
     }

@@ -1,5 +1,7 @@
 package com.suportedisciplinado.api.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,6 +24,7 @@ public class TicketComment
 
     @ManyToOne
     @JoinColumn(name = "ticket_id", nullable = false)
+    @JsonBackReference("ticket-comment")
     private Ticket ticket;
 
     @ManyToOne
@@ -41,6 +44,7 @@ public class TicketComment
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("comment-attachment")
     private List<TicketAttachment> commentAttachmentsList = new ArrayList<>();
 
     @PreUpdate

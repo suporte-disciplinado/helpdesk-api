@@ -1,5 +1,6 @@
 package com.suportedisciplinado.api.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -59,9 +60,11 @@ public class Ticket
     private LocalDateTime deletedAt;
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("ticket-comment")
     private List<TicketComment> commentsList = new ArrayList<>();
 
     @OneToMany(mappedBy = "ticket", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("ticket-attachment")
     private List<TicketAttachment> ticketAttachmentsList = new ArrayList<>();
 
     @PreUpdate

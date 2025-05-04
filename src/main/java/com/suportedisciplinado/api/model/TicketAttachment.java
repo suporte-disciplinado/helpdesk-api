@@ -1,5 +1,6 @@
 package com.suportedisciplinado.api.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,10 +23,12 @@ public class TicketAttachment
 
     @ManyToOne
     @JoinColumn(name = "ticket_id")
+    @JsonBackReference("ticket-attachment")
     private Ticket ticket;
 
     @ManyToOne
     @JoinColumn(name = "comment_id")
+    @JsonBackReference("comment-attachment")
     private TicketComment comment;
 
     @ManyToOne
