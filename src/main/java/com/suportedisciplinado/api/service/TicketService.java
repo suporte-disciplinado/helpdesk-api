@@ -92,4 +92,8 @@ public class TicketService
     {
         Objects.requireNonNull(ticket, "The ticket received is null, please pass a valid ticket!");
     }
+
+    public List<Ticket> findAll(){
+        return ticketRepository.findAll();
+    }
 }

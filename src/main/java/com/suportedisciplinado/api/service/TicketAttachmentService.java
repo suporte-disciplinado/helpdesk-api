@@ -32,6 +32,10 @@ public class TicketAttachmentService
         this.userRepository = userRepository;
     }
 
+    public List<TicketAttachment> findAll() {
+        return attachmentRepository.findAll();
+    }
+
     public ResponseEntity<TicketAttachment> getAttachmentById(Long attachmentId)
     throws NullPointerException
     {

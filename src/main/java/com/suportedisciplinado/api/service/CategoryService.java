@@ -17,6 +17,10 @@ public class CategoryService {
         this.categoryRepository = categoryRepository;
     }
 
+    public List<Category> findAll() {
+        return categoryRepository.findAll();
+    }
+
     public ResponseEntity<Category> getCategoryById(Long categoryId)
     throws NullPointerException
     {

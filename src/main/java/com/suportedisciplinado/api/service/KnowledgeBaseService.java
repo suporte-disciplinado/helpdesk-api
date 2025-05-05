@@ -15,6 +15,10 @@ public class KnowledgeBaseService {
     @Autowired
     private KnowledgeBaseRepository knowledgeBaseRepository;
 
+    public List<KnowledgeBase> findAll() {
+        return knowledgeBaseRepository.findAll();
+    }
+
     public ResponseEntity<List<KnowledgeBase>> getAllKnowledgeBases() {
         return ResponseEntity.ok(knowledgeBaseRepository.findAll());
     }

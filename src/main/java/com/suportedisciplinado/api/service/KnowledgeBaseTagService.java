@@ -15,6 +15,10 @@ public class KnowledgeBaseTagService {
     @Autowired
     private KnowledgeBaseTagRepository knowledgeBaseTagRepository;
 
+    public List<KnowledgeBaseTag> findAll() {
+        return knowledgeBaseTagRepository.findAll();
+    }
+
     public ResponseEntity<List<KnowledgeBaseTag>> getAllKnowledgeBaseTags() {
         return ResponseEntity.ok(knowledgeBaseTagRepository.findAll());
     }

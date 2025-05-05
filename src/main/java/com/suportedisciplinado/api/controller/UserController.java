@@ -15,11 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
+@RequestMapping
 public class UserController {
 
     private final UserService userService;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+
 
     public UserController(UserService userService, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userService = userService;
