@@ -1,60 +1,90 @@
 package com.suportedisciplinado.api.controller;
 
 import com.suportedisciplinado.api.model.KnowledgeBase;
+import com.suportedisciplinado.api.repository.KnowledgeBaseRepository;
 import com.suportedisciplinado.api.service.KnowledgeBaseService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.oauth2.client.servlet.OAuth2ClientAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityFilterAutoConfiguration;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Import;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.*;
 
-@WebMvcTest(controllers = KnowledgeBaseController.class,
-        excludeAutoConfiguration = {
-                SecurityAutoConfiguration.class,
-                SecurityFilterAutoConfiguration.class,
-                OAuth2ClientAutoConfiguration.class
-        }
-)
-@Import(KnowledgeBaseControllerTest.Config.class)
+@SpringBootTest
+@AutoConfigureMockMvc
 class KnowledgeBaseControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    private KnowledgeBaseRepository repository;
 
-    @MockBean
     private KnowledgeBaseService service;
+    private KnowledgeBaseController controller;
 
-    @Test
-    void shouldReturnAllKnowledgeBaseEntries() throws Exception {
-        when(service.getAllKnowledgeBases()).thenReturn(ResponseEntity.ok(List.of(new KnowledgeBase())));
-
-        mockMvc.perform(get("/api/knowledge-base")
-                        .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+    @BeforeEach
+    void setup() {
+        service = new KnowledgeBaseService();
+        service.knowledgeBaseRepository = repository;
+        controller = new KnowledgeBaseController(service);
     }
 
-    @TestConfiguration
-    static class Config {
-        @Bean
-        @Primary
-        public KnowledgeBaseService knowledgeBaseService() {
-            return mock(KnowledgeBaseService.class);
-        }
+    @Test
+    void testCreateKnowledgeBase() {
+        KnowledgeBase kb = new KnowledgeBase();
+        kb.setDescription("Test Description");
+
+        ResponseEntity<KnowledgeBase> response = controller.create(kb);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        assertEquals("Test Description", response.getBody().getDescription());
+    }
+
+    @Test
+    void testGetAllKnowledgeBases() {
+        ResponseEntity<List<KnowledgeBase>> response = controller.getAll();
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+    }
+
+    @Test
+    void testGetKnowledgeBaseById() {
+        KnowledgeBase kb = new KnowledgeBase();
+        kb.setDescription("GetById Test");
+        KnowledgeBase saved = repository.saveAndFlush(kb);
+
+        ResponseEntity<Optional<KnowledgeBase>> response = controller.getById(saved.getId());
+        assertEquals(200, response.getStatusCode().value());
+        assertTrue(response.getBody().isPresent());
+        assertEquals("GetById Test", response.getBody().get().getDescription());
+    }
+
+    @Test
+    void testUpdateKnowledgeBase() {
+        KnowledgeBase kb = new KnowledgeBase();
+        kb.setDescription("Initial");
+        KnowledgeBase saved = repository.saveAndFlush(kb);
+
+        saved.setDescription("Updated");
+        ResponseEntity<KnowledgeBase> response = controller.update(saved);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("Updated", response.getBody().getDescription());
+    }
+
+    @Test
+    void testDeleteKnowledgeBase() {
+        KnowledgeBase kb = new KnowledgeBase();
+        kb.setDescription("To be deleted");
+        KnowledgeBase saved = repository.saveAndFlush(kb);
+
+        ResponseEntity<String> response = controller.delete(saved.getId());
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals("KnowledgeBase deleted successfully!", response.getBody());
+        assertFalse(repository.findById(saved.getId()).isPresent());
     }
 }

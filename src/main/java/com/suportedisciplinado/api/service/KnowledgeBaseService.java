@@ -13,7 +13,7 @@ import java.util.Optional;
 public class KnowledgeBaseService {
 
     @Autowired
-    private KnowledgeBaseRepository knowledgeBaseRepository;
+    public KnowledgeBaseRepository knowledgeBaseRepository;
 
     public List<KnowledgeBase> findAll() {
         return knowledgeBaseRepository.findAll();
