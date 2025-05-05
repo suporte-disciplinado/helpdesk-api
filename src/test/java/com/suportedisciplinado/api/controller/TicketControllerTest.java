@@ -7,12 +7,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = TicketController.class)
@@ -25,11 +28,12 @@ class TicketControllerTest {
     private TicketService service;
 
     @Test
+    @WithMockUser(username = "betofrassoncb@gmail.com", roles = {"USER"}, password = "1234")
     void shouldReturnAllTickets() throws Exception {
         when(service.findAll()).thenReturn(List.of(new Ticket()));
 
         mockMvc.perform(get("/api/ticket")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk());
+                        .andExpect(status().isOk());
     }
 }
