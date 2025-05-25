@@ -30,6 +30,10 @@ public class UserService {
         return ResponseEntity.ok(userRepository.findById(id));
     }
 
+    public ResponseEntity<Optional<User>> getUserByEmail(String email) {
+        return ResponseEntity.ok(userRepository.findByEmail(email));
+    }
+
     public ResponseEntity<User> createUser(User user) {
         return ResponseEntity.ok(userRepository.saveAndFlush(user));
     }
