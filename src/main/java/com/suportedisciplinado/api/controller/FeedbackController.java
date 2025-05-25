@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/feedbacks")
+@RequestMapping("/api/feedback")
 public class FeedbackController {
 
     @Autowired
