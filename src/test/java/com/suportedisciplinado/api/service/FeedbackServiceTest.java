@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.stubbing.OngoingStubbing;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,9 +30,11 @@ class FeedbackServiceTest {
         Feedback feedback = new Feedback();
         when(repository.findAll()).thenReturn(List.of(feedback));
 
-        List<Feedback> result = service.findAll();
-        assertThat(result).hasSize(1);
-        assertThat(result.getFirst()).isEqualTo(feedback);
+        ResponseEntity<List<Feedback>> result = service.getAllFeedbacks();
+        List<Feedback> body = result.getBody();
+
+        assertThat(body).hasSize(1);
+        assertThat(body.getFirst()).isEqualTo(feedback);
     }
 
     @Test
@@ -42,10 +44,11 @@ class FeedbackServiceTest {
 
         when(repository.findById(1L)).thenReturn(Optional.of(feedback));
 
-        Optional<Feedback> result = service.findById(1L);
+        ResponseEntity<Feedback> result = service.getFeedbackById(1L);
+        Feedback body = result.getBody();
 
-        assertNotNull(result);
-        assertEquals(1L, result.get().getId());
+        assertNotNull(body);
+        assertEquals(1L, body.getId());
     }
 
     @Test
@@ -54,7 +57,7 @@ class FeedbackServiceTest {
         feedback.setRating(5);
         when(repository.saveAndFlush(feedback)).thenReturn(feedback);
 
-        Feedback saved  = service.save(feedback);
+        Feedback saved  = service.createFeedback(feedback).getBody();
 
         assertNotNull(saved);
         assertEquals(5, saved.getRating());
@@ -64,7 +67,7 @@ class FeedbackServiceTest {
     void deleteById() {
         doNothing().when(repository).deleteById(1L);
 
-        assertDoesNotThrow(() -> service.deleteById(1L));
+        assertDoesNotThrow(() -> service.deleteFeedback(1L));
         verify(repository, times(1)).deleteById(1L);
     }
 }

@@ -1,68 +1,44 @@
 package com.suportedisciplinado.api.controller;
 
 import com.suportedisciplinado.api.model.Feedback;
-import com.suportedisciplinado.api.repository.FeedbackRepository;
-import com.suportedisciplinado.api.repository.TicketRepository;
-import com.suportedisciplinado.api.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.suportedisciplinado.api.service.FeedbackService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/feedback")
 public class FeedbackController {
 
-    @Autowired
-    private FeedbackRepository feedbackRepository;
+    private final FeedbackService feedbackService;
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private TicketRepository ticketRepository;
+    public FeedbackController(FeedbackService feedbackService) {
+        this.feedbackService = feedbackService;
+    }
 
     @GetMapping
-    public List<Feedback> getAllFeedbacks(){
-        return feedbackRepository.findAll();
+    public ResponseEntity<List<Feedback>> getAllFeedbacks(){
+        return feedbackService.getAllFeedbacks();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<Feedback> getFeedbackById(@PathVariable Long id) {
-        Optional<Feedback> feedback = feedbackRepository.findById(id);
-        return feedback.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return feedbackService.getFeedbackById(id);
     }
 
     @PostMapping
-    public ResponseEntity<Feedback> createFeedback(@RequestBody Feedback feedback) {
-        if (feedback.getTicket() == null || feedback.getUser() == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        feedback.setFeedbackAt(new Date());
-        Feedback saved = feedbackRepository.save(feedback);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<Feedback> createFeedback(@RequestBody Feedback newFeedback) {
+        return feedbackService.createFeedback(newFeedback);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Feedback> updateFeedback(@PathVariable Long id, @RequestBody Feedback updatedFeedback) {
-        return feedbackRepository.findById(id).map(feedback -> {
-            feedback.setRating(updatedFeedback.getRating());
-            feedback.setComment(updatedFeedback.getComment());
-            Feedback saved = feedbackRepository.save(feedback);
-            return ResponseEntity.ok(saved);
-        }).orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Feedback> updateFeedback(@RequestBody Feedback updatedFeedback) {
+        return feedbackService.updateFeedback(updatedFeedback);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Long id) {
-        if (!feedbackRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        feedbackRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteFeedback(@PathVariable Long id) {
+        return feedbackService.deleteFeedback(id);
     }
 }

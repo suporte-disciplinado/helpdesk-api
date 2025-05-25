@@ -1,20 +1,17 @@
 package com.suportedisciplinado.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.suportedisciplinado.api.config.SecurityConfigTest;
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.service.TicketService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -26,17 +23,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-@TestConfiguration
-class TestSecurityConfig {
-    @Bean
-    public SecurityFilterChain testSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable(); // desativa CSRF nos testes
-        http.authorizeHttpRequests().anyRequest().permitAll(); // permite tudo
-        return http.build();
-    }
-}
-
-@Import(TestSecurityConfig.class)
+@Import(SecurityConfigTest.class)
 @WebMvcTest(controllers = TicketController.class)
 class TicketControllerTest {
 
