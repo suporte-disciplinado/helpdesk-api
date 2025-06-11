@@ -1,11 +1,10 @@
 package com.suportedisciplinado.api.service;
 
-import com.suportedisciplinado.api.model.Category;
-import com.suportedisciplinado.api.model.Ticket;
-import com.suportedisciplinado.api.model.User;
+import com.suportedisciplinado.api.model.*;
 import com.suportedisciplinado.api.repository.CategoryRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import com.suportedisciplinado.api.repository.UserRepository;
+import com.suportedisciplinado.api.security.CustomUserDetails;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -67,8 +66,18 @@ public class TicketService
         return ResponseEntity.ok("Ticket updated successfully!");
     }
 
-    public ResponseEntity<List<Ticket>> getAllTickets() {
-        return ResponseEntity.ok(ticketRepository.findAll());
+    public ResponseEntity<List<Ticket>> getAllTickets(CustomUserDetails userDetails, Status status, String title) {
+        User user = userDetails.getUser();
+
+        List<Ticket> tickets;
+
+        if (user.getRole() == Role.ADMIN) {
+            tickets = ticketRepository.searchTickets(status, title);
+        } else {
+            tickets = ticketRepository.searchTicketsByAssignedAgent(user, status, title);
+        }
+
+        return ResponseEntity.ok(tickets);
     }
 
     public ResponseEntity<String> deleteTicketById(Long id) {

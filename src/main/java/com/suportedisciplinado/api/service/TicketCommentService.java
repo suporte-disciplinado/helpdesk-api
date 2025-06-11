@@ -57,6 +57,11 @@ public class TicketCommentService
         return ResponseEntity.ok("Comment updated successfully!");
     }
 
+    public ResponseEntity<List<TicketComment>> getAllCommentsByTicketId(Long ticketId) {
+        List<TicketComment> comments = commentRepository.findByTicketId(ticketId);
+        return ResponseEntity.ok(comments);
+    }
+
     public ResponseEntity<List<TicketComment>> getAllComments() {
         return ResponseEntity.ok(commentRepository.findAll());
     }

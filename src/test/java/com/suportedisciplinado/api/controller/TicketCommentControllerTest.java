@@ -1,6 +1,9 @@
 package com.suportedisciplinado.api.controller;
 
+import com.suportedisciplinado.api.model.Role;
 import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.User;
+import com.suportedisciplinado.api.security.CustomUserDetails;
 import com.suportedisciplinado.api.service.TicketCommentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,10 +31,18 @@ public class TicketCommentControllerTest {
 
     @Test
     public void testCreateComment() {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("test@example.com");
+        user.setPassword("password");
+        user.setRole(Role.USER);
+
+        CustomUserDetails customUserDetails = new CustomUserDetails(user);
+
         TicketComment tc = new TicketComment();
         ResponseEntity<String> serviceResponse = ResponseEntity.ok("Comment created successfully!");
         when(service.createComment(tc)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.createComment(tc);
+        ResponseEntity<String> response = controller.createComment(tc, customUserDetails);
         assertThat(response.getBody()).isEqualTo("Comment created successfully!");
     }
 
@@ -49,7 +60,7 @@ public class TicketCommentControllerTest {
         List<TicketComment> list = Collections.emptyList();
         ResponseEntity<List<TicketComment>> serviceResponse = ResponseEntity.ok(list);
         when(service.getAllComments()).thenReturn(serviceResponse);
-        ResponseEntity<List<TicketComment>> response = controller.searchForAllComments();
+        ResponseEntity<List<TicketComment>> response = controller.searchForAllComments(1L);
         assertThat(response.getBody()).isEqualTo(list);
     }
 

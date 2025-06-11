@@ -47,6 +47,9 @@ public class UserService {
         userToUpdate.setName(user.getName());
         userToUpdate.setEmail(user.getEmail());
 
+        if (user.getRole() != null)
+            userToUpdate.setRole(user.getRole());
+
         User updatedUser = userRepository.saveAndFlush(userToUpdate);
         return ResponseEntity.ok(userRepository.saveAndFlush(updatedUser));
     }

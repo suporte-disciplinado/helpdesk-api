@@ -20,4 +20,6 @@ public interface TicketCommentRepository extends JpaRepository<TicketComment, Lo
 
     @Override
     <S extends TicketComment> S saveAndFlush(S entity);
+
+    List<TicketComment> findByTicketId(Long ticketId);
 }
