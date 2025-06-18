@@ -17,7 +17,10 @@ import net.jqwik.api.constraints.AlphaChars;
 import net.jqwik.api.constraints.Positive;
 import net.jqwik.api.constraints.StringLength;
 
+import java.time.LocalDateTime;
+
 public class TicketAttachmentTest {
+
     @Provide
     Arbitrary<User> validUser() {
         return CustomArbitraries.validUser();
@@ -34,15 +37,14 @@ public class TicketAttachmentTest {
     }
 
     @Property
-    public void ticketCommentCreationTest(
+    public void ticketAttachmentCreationTest(
             @ForAll @Positive @Min(1) Long id,
             @ForAll("validTicket") Ticket ticket,
             @ForAll("validTicketComment") TicketComment ticketComment,
             @ForAll("validUser") User user,
             @ForAll @StringLength(min = 1) @AlphaChars String filePath,
             @ForAll @StringLength(min = 1, max = 100) @AlphaChars String fileType
-    )
-    {
+    ) {
         TicketAttachment ticketAttachment = new TicketAttachment();
         ticketAttachment.setId(id);
         ticketAttachment.setUser(user);
@@ -55,6 +57,8 @@ public class TicketAttachmentTest {
         assertThat(ticketAttachment.getUser()).isInstanceOf(User.class);
         assertThat(ticketAttachment.getTicket()).isInstanceOf(Ticket.class);
         assertThat(ticketAttachment.getComment()).isInstanceOf(TicketComment.class);
+        assertThat(ticketAttachment.getFilePath()).isNotBlank();
         assertThat(ticketAttachment.getFileType()).isAlphanumeric();
+        assertThat(ticketAttachment.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 }

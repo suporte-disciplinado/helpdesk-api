@@ -18,4 +18,10 @@ public class KnowledgeBaseCategory {
 
     @Column
     private String description;
+
+    public KnowledgeBaseCategory(Long id, String description) {
+        this.id = id;
+        this.description = description;
+    }
+
 }

@@ -3,7 +3,10 @@ package com.suportedisciplinado.api;
 import com.suportedisciplinado.api.model.KnowledgeBaseTag;
 import jakarta.validation.constraints.Min;
 import net.jqwik.api.*;
+import net.jqwik.api.constraints.AlphaChars;
 import net.jqwik.api.constraints.Positive;
+import net.jqwik.api.constraints.StringLength;
+
 import org.junit.jupiter.api.Assertions;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,5 +33,28 @@ public class KnowledgeBaseTagTest {
         Assertions.assertTrue(description.matches("^[a-zA-Z]+$"));
         assertThat(knowledgeBaseTag.getId()).isGreaterThan(0);
         assertThat(knowledgeBaseTag.getDescription()).isAlphabetic();
+    }
+
+    @Property
+    void shouldCreateValidKnowledgeBaseTag(
+        @ForAll @Positive Long id,
+        @ForAll @AlphaChars @StringLength(min = 3, max = 100) String description
+    ) {
+        KnowledgeBaseTag tag = new KnowledgeBaseTag();
+        tag.setId(id);
+        tag.setDescription(description);
+
+        assertThat(tag.getId()).isPositive();
+        assertThat(tag.getDescription()).isNotBlank()
+                                        .hasSizeBetween(3, 100)
+                                        .isAlphabetic();
+    }
+
+    @Example
+    void shouldUseAllArgsConstructor() {
+        KnowledgeBaseTag tag = new KnowledgeBaseTag(99L, "Seguranca");
+
+        assertThat(tag.getId()).isEqualTo(99L);
+        assertThat(tag.getDescription()).isEqualTo("Seguranca");
     }
 }

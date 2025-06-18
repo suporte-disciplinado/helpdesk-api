@@ -21,8 +21,8 @@ public class TicketService
 
     public TicketService(
         TicketRepository ticketRepository,
-        CategoryRepository categoryRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        CategoryRepository categoryRepository
     )
     {
         this.ticketRepository = ticketRepository;
