@@ -13,6 +13,7 @@ permissions:
 
 jobs:
   build-and-test:
+    name: Java CI/CD / build-and-test
     runs-on: ubuntu-latest
     env:
       MIN_COVERAGE: 80
