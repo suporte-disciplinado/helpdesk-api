@@ -26,15 +26,18 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-            .exceptionHandling(exception -> 
-                exception.authenticationEntryPoint(customAuthenticationEntryPoint))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated())
-            .httpBasic(Customizer.withDefaults());
+        http.cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(customAuthenticationEntryPoint))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**", "/h2-console/**").permitAll() // libera acesso ao H2 console
+                        .anyRequest().authenticated())
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                .httpBasic(Customizer.withDefaults());
         return http.build();
     }
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

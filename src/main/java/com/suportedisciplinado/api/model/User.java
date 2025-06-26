@@ -9,7 +9,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.EnumType;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.AllArgsConstructor;
 import java.time.LocalDateTime;
 
@@ -18,6 +20,8 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 public class User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

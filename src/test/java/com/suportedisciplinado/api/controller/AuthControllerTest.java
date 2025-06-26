@@ -9,7 +9,8 @@ import com.suportedisciplinado.api.security.CustomAuthenticationEntryPoint;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
@@ -22,8 +23,8 @@ import java.util.Optional;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(AuthController.class)
-@Import({SecurityConfig.class, CustomAuthenticationEntryPoint.class})
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
 public class AuthControllerTest {
 
     @Autowired
@@ -43,9 +44,9 @@ public class AuthControllerTest {
     
     @Test
     public void registerNewUser_Success() throws Exception {
-        User user = new User(null, "John Doe", "john@example.com", "secret", null, LocalDateTime.now());
+        User user = new User(null, "Alberto", "betofrassoncb@gmail.com", "secret", null, LocalDateTime.now());
         
-        Mockito.when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
+        Mockito.when(userRepository.findByEmail("betofrassoncb@gmail.com")).thenReturn(Optional.empty());
         Mockito.when(passwordEncoder.encode("secret")).thenReturn("hashedSecret");
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                .thenAnswer(invocation -> invocation.getArgument(0));
@@ -59,9 +60,9 @@ public class AuthControllerTest {
     
     @Test
     public void registerExistingUser_Failure() throws Exception {
-        User user = new User(null, "John Doe", "john@example.com", "secret", null, LocalDateTime.now());
+        User user = new User(null, "Alberto", "betofrassoncb@gmail.com", "secret", null, LocalDateTime.now());
         
-        Mockito.when(userRepository.findByEmail("john@example.com"))
+        Mockito.when(userRepository.findByEmail("betofrassoncb@gmail.com"))
                .thenReturn(Optional.of(user));
         
         mockMvc.perform(post("/api/auth/register")
@@ -70,4 +71,24 @@ public class AuthControllerTest {
             .andExpect(status().isBadRequest())
             .andExpect(content().string("Email already exists"));
     }
+
+	public MockMvc getMockMvc() {
+		return mockMvc;
+	}
+
+	public UserRepository getUserRepository() {
+		return userRepository;
+	}
+
+	public PasswordEncoder getPasswordEncoder() {
+		return passwordEncoder;
+	}
+
+	public CustomUserDetailsService getCustomUserDetailsService() {
+		return customUserDetailsService;
+	}
+
+	public ObjectMapper getObjectMapper() {
+		return objectMapper;
+	}
 }
