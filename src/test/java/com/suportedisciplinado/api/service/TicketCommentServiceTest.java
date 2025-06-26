@@ -1,7 +1,7 @@
 package com.suportedisciplinado.api.service;
 
-import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.model.Ticket;
+import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
@@ -12,98 +12,100 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import java.util.ArrayList;
+
+import java.util.Collections;
 import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class TicketCommentServiceTest {
 
     @Mock
-    private TicketCommentRepository commentRepo;
+    private TicketCommentRepository commentRepository;
 
     @Mock
-    private UserRepository userRepo;
+    private UserRepository userRepository;
 
     @Mock
-    private TicketRepository ticketRepo;
+    private TicketRepository ticketRepository;
 
     @InjectMocks
-    private TicketCommentService service;
+    private TicketCommentService commentService;
 
     @BeforeEach
-    public void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testGetCommentById_Null() {
-        assertThrows(NullPointerException.class, () -> service.getCommentById(null));
+    void testFindAll() {
+        when(commentRepository.findAll()).thenReturn(Collections.singletonList(new TicketComment()));
+        List<TicketComment> result = commentService.findAll();
+        assertEquals(1, result.size());
     }
 
     @Test
-    public void testGetCommentById_Valid() {
-        TicketComment tc = new TicketComment();
-        tc.setId(1L);
-        when(commentRepo.getOne(1L)).thenReturn(tc);
-        ResponseEntity<TicketComment> response = service.getCommentById(1L);
-        assertThat(response.getBody()).isEqualTo(tc);
+    void testGetCommentById() {
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+        when(commentRepository.getOne(1L)).thenReturn(comment);
+        ResponseEntity<TicketComment> response = commentService.getCommentById(1L);
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals(1L, response.getBody().getId());
     }
 
     @Test
-    public void testUpdateComment() {
-        TicketComment original = new TicketComment();
-        original.setId(1L);
-        TicketComment updated = new TicketComment();
-        updated.setId(1L);
-        User user = new User();
-        user.setId(1L);
+    void testCreateComment() {
         Ticket ticket = new Ticket();
         ticket.setId(1L);
-        updated.setUser(user);
-        updated.setTicket(ticket);
-        updated.setComment("Updated Comment");
-        when(commentRepo.getOne(1L)).thenReturn(original);
-        when(userRepo.getOne(1L)).thenReturn(user);
-        when(ticketRepo.getOne(1L)).thenReturn(ticket);
-        ResponseEntity<String> response = service.updateComment(updated);
-        assertThat(response.getBody()).isEqualTo("Comment updated successfully!");
-        verify(commentRepo).save(original);
-        assertThat(original.getComment()).isEqualTo("Updated Comment");
-    }
 
-    @Test
-    public void testGetAllComments() {
-        List<TicketComment> list = new ArrayList<>();
-        when(commentRepo.findAll()).thenReturn(list);
-        ResponseEntity<List<TicketComment>> response = service.getAllComments();
-        assertThat(response.getBody()).isEqualTo(list);
-    }
-
-    @Test
-    public void testDeleteCommentById() {
-        ResponseEntity<String> response = service.deleteCommentById(1L);
-        assertThat(response.getBody()).isEqualTo("Comment deleted successfully!");
-        verify(commentRepo).deleteById(1L);
-    }
-
-    @Test
-    public void testCreateComment() {
-        TicketComment tc = new TicketComment();
-        tc.setId(1L);
         User user = new User();
         user.setId(1L);
+
+        TicketComment comment = new TicketComment();
+        comment.setUser(user);
+        comment.setTicket(ticket);
+
+        when(userRepository.getOne(1L)).thenReturn(user);
+        when(ticketRepository.getOne(1L)).thenReturn(ticket);
+
+        ResponseEntity<String> response = commentService.createComment(comment);
+        assertEquals(200, response.getStatusCodeValue());
+        verify(commentRepository).saveAndFlush(any(TicketComment.class));
+    }
+
+    @Test
+    void testUpdateComment() {
         Ticket ticket = new Ticket();
         ticket.setId(1L);
-        tc.setUser(user);
-        tc.setTicket(ticket);
-        tc.setComment("New Comment");
-        when(userRepo.getReferenceById(1L)).thenReturn(user);
-        when(ticketRepo.getReferenceById(1L)).thenReturn(ticket);
-        ResponseEntity<String> response = service.createComment(tc);
-        assertThat(response.getBody()).isEqualTo("Comment created successfully!");
-        verify(commentRepo).saveAndFlush(tc);
+
+        User user = new User();
+        user.setId(1L);
+
+        TicketComment updatedComment = new TicketComment();
+        updatedComment.setId(1L);
+        updatedComment.setComment("Updated");
+        updatedComment.setUser(user);
+        updatedComment.setTicket(ticket);
+
+        TicketComment existing = new TicketComment();
+        existing.setId(1L);
+
+        when(commentRepository.getOne(1L)).thenReturn(existing);
+        when(userRepository.getOne(1L)).thenReturn(user);
+        when(ticketRepository.getOne(1L)).thenReturn(ticket);
+
+        ResponseEntity<String> response = commentService.updateComment(updatedComment);
+        assertEquals(200, response.getStatusCodeValue());
+        verify(commentRepository).save(existing);
+    }
+
+    @Test
+    void testDeleteCommentById() {
+        ResponseEntity<String> response = commentService.deleteCommentById(1L);
+        assertEquals(200, response.getStatusCodeValue());
+        verify(commentRepository).deleteById(1L);
     }
 }

@@ -2,98 +2,113 @@ package com.suportedisciplinado.api.service;
 
 import com.suportedisciplinado.api.model.KnowledgeBaseTag;
 import com.suportedisciplinado.api.repository.KnowledgeBaseTagRepository;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class KnowledgeBaseTagServiceTest {
 
-    @InjectMocks
-    private KnowledgeBaseTagService knowledgeBaseTagService;
-
     @Mock
-    private KnowledgeBaseTagRepository knowledgeBaseTagRepository;
+    private KnowledgeBaseTagRepository tagRepository;
 
-    private KnowledgeBaseTag knowledgeBaseTag;
+    @InjectMocks
+    private KnowledgeBaseTagService tagService;
+
+    private KnowledgeBaseTag sampleTag;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-
-        knowledgeBaseTag = new KnowledgeBaseTag();
-        knowledgeBaseTag.setId(10L);
-        knowledgeBaseTag.setDescription("Tag 01");
-    }
-
-    @AfterEach
-    void tearDown() {
+    void setup() {
+        sampleTag = new KnowledgeBaseTag();
+        sampleTag.setId(1L);
+        sampleTag.setDescription("Suporte");
     }
 
     @Test
-    void getAllKnowledgeBaseTags() {
-        List<KnowledgeBaseTag> tags = Arrays.asList(
-                new KnowledgeBaseTag(1L, "Tag 1"),
-                new KnowledgeBaseTag(2L, "Tag 2")
-        );
-        when(knowledgeBaseTagRepository.findAll()).thenReturn(tags);
+    void testFindAll() {
+        when(tagRepository.findAll()).thenReturn(List.of(sampleTag));
 
-        ResponseEntity<List<KnowledgeBaseTag>> response = knowledgeBaseTagService.getAllKnowledgeBaseTags();
+        List<KnowledgeBaseTag> tags = tagService.findAll();
 
-        verify(knowledgeBaseTagRepository).findAll();
+        assertEquals(1, tags.size());
+        assertEquals("Suporte", tags.get(0).getDescription());
+        verify(tagRepository).findAll();
+    }
+
+    @Test
+    void testGetAllKnowledgeBaseTags() {
+        when(tagRepository.findAll()).thenReturn(List.of(sampleTag));
+
+        ResponseEntity<List<KnowledgeBaseTag>> response = tagService.getAllKnowledgeBaseTags();
+
         assertEquals(200, response.getStatusCodeValue());
-        assertNotNull(response.getBody());
-        assertEquals(2, response.getBody().size());
+        assertFalse(response.getBody().isEmpty());
     }
 
     @Test
-    void getKnowledgeBaseTagById() {
-        Long tagId = 10L;
-        when(knowledgeBaseTagRepository.findById(tagId)).thenReturn(Optional.of(knowledgeBaseTag));
+    void testGetKnowledgeBaseTagById() {
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(sampleTag));
 
-        ResponseEntity<Optional<KnowledgeBaseTag>> response = knowledgeBaseTagService.getKnowledgeBaseTagById(tagId);
+        ResponseEntity<Optional<KnowledgeBaseTag>> response = tagService.getKnowledgeBaseTagById(1L);
 
-        verify(knowledgeBaseTagRepository).findById(tagId);
         assertEquals(200, response.getStatusCodeValue());
         assertTrue(response.getBody().isPresent());
-
-        KnowledgeBaseTag returnedTag = response.getBody().get();
-        assertEquals(knowledgeBaseTag.getId(), returnedTag.getId());
-        assertEquals(knowledgeBaseTag.getDescription(), returnedTag.getDescription());
+        assertEquals("Suporte", response.getBody().get().getDescription());
     }
 
     @Test
-    void createKnowledgeBaseTag() {
-        knowledgeBaseTag = new KnowledgeBaseTag();
-        knowledgeBaseTag.setId(11L);
-        knowledgeBaseTag.setDescription("Tag 02");
+    void testCreateKnowledgeBaseTag() {
+        when(tagRepository.saveAndFlush(any(KnowledgeBaseTag.class))).thenReturn(sampleTag);
 
-        when(knowledgeBaseTagRepository.saveAndFlush(knowledgeBaseTag)).thenReturn(knowledgeBaseTag);
+        ResponseEntity<KnowledgeBaseTag> response = tagService.createKnowledgeBaseTag(sampleTag);
 
-        ResponseEntity<KnowledgeBaseTag> response = knowledgeBaseTagService.createKnowledgeBaseTag(knowledgeBaseTag);
-
-        verify(knowledgeBaseTagRepository).saveAndFlush(knowledgeBaseTag);
-        assertNotNull(response);
-        assertEquals(knowledgeBaseTag, response.getBody());
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Suporte", response.getBody().getDescription());
     }
 
     @Test
-    void updateKnowledgeBaseTag() {
+    void testUpdateKnowledgeBaseTag_Success() {
+        when(tagRepository.findById(1L)).thenReturn(Optional.of(sampleTag));
+        when(tagRepository.saveAndFlush(any(KnowledgeBaseTag.class))).thenReturn(sampleTag);
 
+        sampleTag.setDescription("Atualizada");
+
+        ResponseEntity<KnowledgeBaseTag> response = tagService.updateKnowledgeBaseTag(sampleTag);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Atualizada", response.getBody().getDescription());
     }
 
     @Test
-    void deleteKnowledgeBaseTag() {
+    void testUpdateKnowledgeBaseTag_NotFound() {
+        when(tagRepository.findById(99L)).thenReturn(Optional.empty());
 
+        KnowledgeBaseTag notFoundTag = new KnowledgeBaseTag();
+        notFoundTag.setId(99L);
+
+        ResponseEntity<KnowledgeBaseTag> response = tagService.updateKnowledgeBaseTag(notFoundTag);
+
+        assertEquals(404, response.getStatusCodeValue());
+        assertNull(response.getBody());
     }
-}
+
+    @Test
+    void testDeleteKnowledgeBaseTag() {
+        doNothing().when(tagRepository).deleteById(1L);
+
+        ResponseEntity<String> response = tagService.deleteKnowledgeBaseTag(1L);
+
+        assertEquals(200, response.getStatusCodeValue());
+        assertEquals("Tag deleted successfully!", response.getBody());
+    }
+} 

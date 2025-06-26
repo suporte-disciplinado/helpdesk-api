@@ -44,9 +44,9 @@ public class AuthControllerTest {
     
     @Test
     public void registerNewUser_Success() throws Exception {
-        User user = new User(null, "John Doe", "john@example.com", "secret", null, LocalDateTime.now());
+        User user = new User(null, "Alberto", "betofrassoncb@gmail.com", "secret", null, LocalDateTime.now());
         
-        Mockito.when(userRepository.findByEmail("john@example.com")).thenReturn(Optional.empty());
+        Mockito.when(userRepository.findByEmail("betofrassoncb@gmail.com")).thenReturn(Optional.empty());
         Mockito.when(passwordEncoder.encode("secret")).thenReturn("hashedSecret");
         Mockito.when(userRepository.save(Mockito.any(User.class)))
                .thenAnswer(invocation -> invocation.getArgument(0));
@@ -60,9 +60,9 @@ public class AuthControllerTest {
     
     @Test
     public void registerExistingUser_Failure() throws Exception {
-        User user = new User(null, "John Doe", "john@example.com", "secret", null, LocalDateTime.now());
+        User user = new User(null, "Alberto", "betofrassoncb@gmail.com", "secret", null, LocalDateTime.now());
         
-        Mockito.when(userRepository.findByEmail("john@example.com"))
+        Mockito.when(userRepository.findByEmail("betofrassoncb@gmail.com"))
                .thenReturn(Optional.of(user));
         
         mockMvc.perform(post("/api/auth/register")

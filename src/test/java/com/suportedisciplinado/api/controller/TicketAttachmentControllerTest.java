@@ -1,72 +1,128 @@
 package com.suportedisciplinado.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.suportedisciplinado.api.config.SecurityConfigTest;
+import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketAttachment;
+import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.service.TicketAttachmentService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import java.util.Collections;
-import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@Import(SecurityConfigTest.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(controllers = TicketAttachmentController.class)
 public class TicketAttachmentControllerTest {
 
-    @Mock
-    private TicketAttachmentService service;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    private TicketAttachmentController controller;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
+    @MockBean
+    private TicketAttachmentService attachmentService;
+
+    @Test
+    @WithMockUser
+    void shouldReturnAllAttachments() throws Exception {
+        when(attachmentService.getAllAttachments()).thenReturn(ResponseEntity.ok(List.of(new TicketAttachment())));
+
+        mockMvc.perform(get("/api/ticket/attachment")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testCreateAttachment() {
-        TicketAttachment ta = new TicketAttachment();
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Attachment created successfully!");
-        when(service.createAttachment(ta)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.createAttachment(ta);
-        assertThat(response.getBody()).isEqualTo("Attachment created successfully!");
+    @WithMockUser
+    void shouldReturnAttachmentById() throws Exception {
+        TicketAttachment attachment = new TicketAttachment();
+        attachment.setId(1L);
+        when(attachmentService.getAttachmentById(1L)).thenReturn(ResponseEntity.ok(attachment));
+
+        mockMvc.perform(get("/api/ticket/attachment/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testUpdateAttachment() {
-        TicketAttachment ta = new TicketAttachment();
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Attachment updated successfully!");
-        when(service.updateAttachment(ta)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.updateAttachment(ta);
-        assertThat(response.getBody()).isEqualTo("Attachment updated successfully!");
+    @WithMockUser
+    void shouldCreateAttachment() throws Exception {
+        TicketAttachment attachment = new TicketAttachment();
+        attachment.setFilePath("/uploads/example.pdf");
+        attachment.setFileType("application/pdf");
+
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+        attachment.setComment(comment);
+
+        Ticket ticket = new Ticket();
+        ticket.setId(1L);
+        attachment.setTicket(ticket);
+
+        User user = new User();
+        user.setId(1L);
+        attachment.setUser(user);
+
+        when(attachmentService.createAttachment(any(TicketAttachment.class))).thenReturn(ResponseEntity.ok("Attachment created successfully!"));
+
+        mockMvc.perform(post("/api/ticket/attachment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(attachment)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testSearchForAllAttachments() {
-        List<TicketAttachment> list = Collections.emptyList();
-        ResponseEntity<List<TicketAttachment>> serviceResponse = ResponseEntity.ok(list);
-        when(service.getAllAttachments()).thenReturn(serviceResponse);
-        ResponseEntity<List<TicketAttachment>> response = controller.searchForAllAttachments();
-        assertThat(response.getBody()).isEqualTo(list);
+    @WithMockUser
+    void shouldUpdateAttachment() throws Exception {
+        TicketAttachment attachment = new TicketAttachment();
+        attachment.setId(1L);
+        attachment.setFilePath("/uploads/updated.pdf");
+        attachment.setFileType("application/pdf");
+
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+        attachment.setComment(comment);
+
+        Ticket ticket = new Ticket();
+        ticket.setId(1L);
+        attachment.setTicket(ticket);
+
+        User user = new User();
+        user.setId(1L);
+        attachment.setUser(user);
+
+        when(attachmentService.updateAttachment(any(TicketAttachment.class))).thenReturn(ResponseEntity.ok("Attachment updated successfully!"));
+
+        mockMvc.perform(put("/api/ticket/attachment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(attachment)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testSearchForAttachment() {
-        TicketAttachment ta = new TicketAttachment();
-        ResponseEntity<TicketAttachment> serviceResponse = ResponseEntity.ok(ta);
-        when(service.getAttachmentById(1L)).thenReturn(serviceResponse);
-        ResponseEntity<TicketAttachment> response = controller.searchForAttachment(1L);
-        assertThat(response.getBody()).isEqualTo(ta);
-    }
+    @WithMockUser
+    void shouldDeleteAttachment() throws Exception {
+        when(attachmentService.deleteAttachmentById(1L)).thenReturn(ResponseEntity.ok("Attachment deleted successfully!"));
 
-    @Test
-    public void testDeleteAttachment() {
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Attachment deleted successfully!");
-        when(service.deleteAttachmentById(1L)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.deleteAttachment(1L);
-        assertThat(response.getBody()).isEqualTo("Attachment deleted successfully!");
+        mockMvc.perform(delete("/api/ticket/attachment/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

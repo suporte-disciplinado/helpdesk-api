@@ -30,6 +30,10 @@ public class TicketCommentService
         this.ticketRepository = ticketRepository;
     }
 
+    public List<TicketComment> findAll(){
+        return commentRepository.findAll();
+    }
+
     public ResponseEntity<TicketComment> getCommentById(Long commentId)
     throws NullPointerException
     {

@@ -17,6 +17,10 @@ public class KnowledgeBaseCategoryService {
         this.knowledgeBaseCategoryRepository = knowledgeBaseCategoryRepository;
     }
 
+    public List<KnowledgeBaseCategory> findAll() {
+        return knowledgeBaseCategoryRepository.findAll();
+    }
+
     public ResponseEntity<List<KnowledgeBaseCategory>> getAllKnowledgeBaseCategories() {
         return ResponseEntity.ok(knowledgeBaseCategoryRepository.findAll());
     }

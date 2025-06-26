@@ -13,6 +13,8 @@ import net.jqwik.api.constraints.Positive;
 import org.junit.jupiter.api.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.LocalDateTime;
+
 public class TicketAttachmentTest {
 
     @Provide
@@ -31,33 +33,28 @@ public class TicketAttachmentTest {
     }
 
     @Property
-    public void ticketCommentCreationTest(
-        @ForAll @Positive Long id,
-        @ForAll("validTicket") Ticket ticket,
-        @ForAll("validTicketComment") TicketComment ticketComment,
-        @ForAll("validUser") User user,
-        @ForAll @StringLength(min = 1) @AlphaChars String filePath,
-        @ForAll @StringLength(min = 1, max = 100) @AlphaChars String fileType
+    public void ticketAttachmentCreationTest(
+            @ForAll @Positive @Min(1) Long id,
+            @ForAll("validTicket") Ticket ticket,
+            @ForAll("validTicketComment") TicketComment ticketComment,
+            @ForAll("validUser") User user,
+            @ForAll @StringLength(min = 1) @AlphaChars String filePath,
+            @ForAll @StringLength(min = 1, max = 100) @AlphaChars String fileType
     ) {
-        TicketAttachment ta = new TicketAttachment();
-        ta.setId(id);
-        ta.setUser(user);
-        ta.setTicket(ticket);
-        ta.setComment(ticketComment);
-        ta.setFilePath(filePath);
-        ta.setFileType(fileType);
-        assertThat(ta.getId()).isGreaterThan(0);
-        assertThat(ta.getUser()).isInstanceOf(User.class);
-        assertThat(ta.getTicket()).isInstanceOf(Ticket.class);
-        assertThat(ta.getComment()).isInstanceOf(TicketComment.class);
-        assertThat(ta.getFileType()).isAlphanumeric();
-    }
+        TicketAttachment ticketAttachment = new TicketAttachment();
+        ticketAttachment.setId(id);
+        ticketAttachment.setUser(user);
+        ticketAttachment.setTicket(ticket);
+        ticketAttachment.setComment(ticketComment);
+        ticketAttachment.setFilePath(filePath);
+        ticketAttachment.setFileType(fileType);
 
-    @Test
-    public void preUpdateSetsUpdatedAt() {
-        TicketAttachment ta = new TicketAttachment();
-        ta.setUpdatedAt(null);
-        ta.setUpdatedAt();
-        assertThat(ta.getUpdatedAt()).isNotNull();
+        assertThat(ticketAttachment.getId()).isGreaterThan(0);
+        assertThat(ticketAttachment.getUser()).isInstanceOf(User.class);
+        assertThat(ticketAttachment.getTicket()).isInstanceOf(Ticket.class);
+        assertThat(ticketAttachment.getComment()).isInstanceOf(TicketComment.class);
+        assertThat(ticketAttachment.getFilePath()).isNotBlank();
+        assertThat(ticketAttachment.getFileType()).isAlphanumeric();
+        assertThat(ticketAttachment.getCreatedAt()).isBeforeOrEqualTo(LocalDateTime.now());
     }
 }

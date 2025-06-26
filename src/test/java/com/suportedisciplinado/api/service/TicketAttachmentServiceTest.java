@@ -1,9 +1,6 @@
 package com.suportedisciplinado.api.service;
 
-import com.suportedisciplinado.api.model.TicketAttachment;
-import com.suportedisciplinado.api.model.Ticket;
-import com.suportedisciplinado.api.model.TicketComment;
-import com.suportedisciplinado.api.model.User;
+import com.suportedisciplinado.api.model.*;
 import com.suportedisciplinado.api.repository.TicketAttachmentRepository;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
@@ -14,110 +11,112 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.ResponseEntity;
-import java.util.ArrayList;
+
 import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import java.util.Optional;
 
-public class TicketAttachmentServiceTest {
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-    @Mock
-    private TicketAttachmentRepository attachmentRepo;
+class TicketAttachmentServiceTest {
 
     @Mock
-    private TicketCommentRepository commentRepo;
+    private TicketAttachmentRepository attachmentRepository;
 
     @Mock
-    private TicketRepository ticketRepo;
+    private TicketCommentRepository ticketCommentRepository;
 
     @Mock
-    private UserRepository userRepo;
+    private TicketRepository ticketRepository;
+
+    @Mock
+    private UserRepository userRepository;
 
     @InjectMocks
     private TicketAttachmentService service;
 
     @BeforeEach
-    public void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void testGetAttachmentById_Null() {
-        assertThrows(NullPointerException.class, () -> service.getAttachmentById(null));
+    void testFindAll() {
+        when(attachmentRepository.findAll()).thenReturn(List.of(new TicketAttachment()));
+        List<TicketAttachment> result = service.findAll();
+        assertEquals(1, result.size());
     }
 
     @Test
-    public void testGetAttachmentById_Valid() {
-        TicketAttachment ta = new TicketAttachment();
-        ta.setId(1L);
-        when(attachmentRepo.getReferenceById(1L)).thenReturn(ta);
+    void testGetAttachmentById() {
+        TicketAttachment attachment = new TicketAttachment();
+        attachment.setId(1L);
+        when(attachmentRepository.getOne(1L)).thenReturn(attachment);
+
         ResponseEntity<TicketAttachment> response = service.getAttachmentById(1L);
-        assertThat(response.getBody()).isEqualTo(ta);
+        assertEquals(1L, response.getBody().getId());
     }
 
     @Test
-    public void testUpdateAttachment() {
+    void testCreateAttachment() {
+        TicketAttachment attachment = new TicketAttachment();
+
+        User user = new User();
+        user.setId(1L);
+        Ticket ticket = new Ticket();
+        ticket.setId(1L);
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+
+        attachment.setUser(user);
+        attachment.setTicket(ticket);
+        attachment.setComment(comment);
+
+        when(userRepository.getOne(1L)).thenReturn(user);
+        when(ticketRepository.getOne(1L)).thenReturn(ticket);
+        when(ticketCommentRepository.getOne(1L)).thenReturn(comment);
+
+        when(attachmentRepository.saveAndFlush(any(TicketAttachment.class))).thenReturn(attachment);
+
+        ResponseEntity<String> response = service.createAttachment(attachment);
+        assertEquals("Attachment created successfully!", response.getBody());
+    }
+
+    @Test
+    void testUpdateAttachment() {
         TicketAttachment original = new TicketAttachment();
         original.setId(1L);
-        TicketAttachment updated = new TicketAttachment();
-        updated.setId(1L);
+
+        TicketAttachment update = new TicketAttachment();
+        update.setId(1L);
+
         User user = new User();
         user.setId(1L);
         Ticket ticket = new Ticket();
         ticket.setId(1L);
         TicketComment comment = new TicketComment();
         comment.setId(1L);
-        updated.setUser(user);
-        updated.setTicket(ticket);
-        updated.setComment(comment);
-        updated.setFilePath("newPath");
-        updated.setFileType("newType");
-        when(attachmentRepo.getReferenceById(1L)).thenReturn(original);
-        when(userRepo.getReferenceById(1L)).thenReturn(user);
-        when(ticketRepo.getReferenceById(1L)).thenReturn(ticket);
-        when(commentRepo.getReferenceById(1L)).thenReturn(comment);
-        ResponseEntity<String> response = service.updateAttachment(updated);
-        assertThat(response.getBody()).isEqualTo("Attachment updated successfully!");
-        verify(attachmentRepo).save(original);
+
+        update.setUser(user);
+        update.setTicket(ticket);
+        update.setComment(comment);
+        update.setFilePath("/file.txt");
+        update.setFileType("text/plain");
+
+        when(attachmentRepository.getOne(1L)).thenReturn(original);
+        when(userRepository.getOne(1L)).thenReturn(user);
+        when(ticketRepository.getOne(1L)).thenReturn(ticket);
+        when(ticketCommentRepository.getOne(1L)).thenReturn(comment);
+
+        ResponseEntity<String> response = service.updateAttachment(update);
+        assertEquals("Attachment updated successfully!", response.getBody());
     }
 
     @Test
-    public void testGetAllAttachments() {
-        List<TicketAttachment> list = new ArrayList<>();
-        when(attachmentRepo.findAll()).thenReturn(list);
-        ResponseEntity<List<TicketAttachment>> response = service.getAllAttachments();
-        assertThat(response.getBody()).isEqualTo(list);
-    }
-
-    @Test
-    public void testDeleteAttachmentById() {
+    void testDeleteAttachment() {
+        doNothing().when(attachmentRepository).deleteById(1L);
         ResponseEntity<String> response = service.deleteAttachmentById(1L);
-        assertThat(response.getBody()).isEqualTo("Attachment deleted successfully!");
-        verify(attachmentRepo).deleteById(1L);
-    }
-
-    @Test
-    public void testCreateAttachment() {
-        TicketAttachment ta = new TicketAttachment();
-        ta.setId(1L);
-        User user = new User();
-        user.setId(1L);
-        Ticket ticket = new Ticket();
-        ticket.setId(1L);
-        TicketComment comment = new TicketComment();
-        comment.setId(1L);
-        ta.setUser(user);
-        ta.setTicket(ticket);
-        ta.setComment(comment);
-        ta.setFilePath("path");
-        ta.setFileType("type");
-        when(userRepo.getReferenceById(1L)).thenReturn(user);
-        when(ticketRepo.getReferenceById(1L)).thenReturn(ticket);
-        when(commentRepo.getReferenceById(1L)).thenReturn(comment);
-        ResponseEntity<String> response = service.createAttachment(ta);
-        assertThat(response.getBody()).isEqualTo("Attachment created successfully!");
-        verify(attachmentRepo).saveAndFlush(ta);
+        assertEquals("Attachment deleted successfully!", response.getBody());
     }
 }

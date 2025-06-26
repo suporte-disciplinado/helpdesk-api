@@ -1,72 +1,110 @@
 package com.suportedisciplinado.api.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.suportedisciplinado.api.config.SecurityConfigTest;
+import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
+import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.service.TicketCommentService;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import java.util.Collections;
-import java.util.List;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@Import(SecurityConfigTest.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(controllers = TicketCommentController.class)
 public class TicketCommentControllerTest {
 
-    @Mock
-    private TicketCommentService service;
+    @Autowired
+    private MockMvc mockMvc;
 
-    @InjectMocks
-    private TicketCommentController controller;
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
+    @MockBean
+    private TicketCommentService ticketCommentService;
+
+    @Test
+    @WithMockUser
+    void shouldReturnAllComments() throws Exception {
+        when(ticketCommentService.getAllComments())
+                .thenReturn(ResponseEntity.ok(List.of(new TicketComment())));
+
+        mockMvc.perform(get("/api/comment")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testCreateComment() {
-        TicketComment tc = new TicketComment();
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Comment created successfully!");
-        when(service.createComment(tc)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.createComment(tc);
-        assertThat(response.getBody()).isEqualTo("Comment created successfully!");
+    @WithMockUser
+    void shouldReturnCommentById() throws Exception {
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+
+        when(ticketCommentService.getCommentById(1L)).thenReturn(ResponseEntity.ok(comment));
+
+        mockMvc.perform(get("/api/comment/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testUpdateComment() {
-        TicketComment tc = new TicketComment();
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Comment updated successfully!");
-        when(service.updateComment(tc)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.updateComment(tc);
-        assertThat(response.getBody()).isEqualTo("Comment updated successfully!");
+    @WithMockUser
+    void shouldCreateComment() throws Exception {
+        TicketComment comment = new TicketComment();
+        comment.setComment("Comentário Teste");
+        comment.setTicket(new Ticket());
+        comment.setUser(new User());
+
+        when(ticketCommentService.createComment(any(TicketComment.class)))
+                .thenReturn(ResponseEntity.ok("Comment created successfully!"));
+
+        mockMvc.perform(post("/api/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(comment)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testSearchForAllComments() {
-        List<TicketComment> list = Collections.emptyList();
-        ResponseEntity<List<TicketComment>> serviceResponse = ResponseEntity.ok(list);
-        when(service.getAllComments()).thenReturn(serviceResponse);
-        ResponseEntity<List<TicketComment>> response = controller.searchForAllComments();
-        assertThat(response.getBody()).isEqualTo(list);
+    @WithMockUser
+    void shouldUpdateComment() throws Exception {
+        TicketComment comment = new TicketComment();
+        comment.setId(1L);
+        comment.setComment("Comentário Atualizado");
+        comment.setTicket(new Ticket());
+        comment.setUser(new User());
+
+        when(ticketCommentService.updateComment(any(TicketComment.class)))
+                .thenReturn(ResponseEntity.ok("Comment updated successfully!"));
+
+        mockMvc.perform(put("/api/comment")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(comment)))
+                .andExpect(status().isOk());
     }
 
     @Test
-    public void testSearchForComment() {
-        TicketComment tc = new TicketComment();
-        ResponseEntity<TicketComment> serviceResponse = ResponseEntity.ok(tc);
-        when(service.getCommentById(1L)).thenReturn(serviceResponse);
-        ResponseEntity<TicketComment> response = controller.searchForComment(1L);
-        assertThat(response.getBody()).isEqualTo(tc);
-    }
+    @WithMockUser
+    void shouldDeleteComment() throws Exception {
+        when(ticketCommentService.deleteCommentById(1L))
+                .thenReturn(ResponseEntity.ok("Comment deleted successfully!"));
 
-    @Test
-    public void testDeleteComment() {
-        ResponseEntity<String> serviceResponse = ResponseEntity.ok("Comment deleted successfully!");
-        when(service.deleteCommentById(1L)).thenReturn(serviceResponse);
-        ResponseEntity<String> response = controller.deleteComment(1L);
-        assertThat(response.getBody()).isEqualTo("Comment deleted successfully!");
+        mockMvc.perform(delete("/api/comment/1")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
     }
 }

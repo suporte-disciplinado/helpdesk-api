@@ -22,8 +22,8 @@ public class TicketService
 
     public TicketService(
         TicketRepository ticketRepository,
-        CategoryRepository categoryRepository,
-        UserRepository userRepository
+        UserRepository userRepository,
+        CategoryRepository categoryRepository
     )
     {
         this.ticketRepository = ticketRepository;
@@ -95,5 +95,9 @@ public class TicketService
     throws NullPointerException
     {
         Objects.requireNonNull(ticket, "The ticket received is null, please pass a valid ticket!");
+    }
+
+    public List<Ticket> findAll(){
+        return ticketRepository.findAll();
     }
 }
