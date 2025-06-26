@@ -38,6 +38,15 @@ public class UserController {
         return user;
     }
 
+    @GetMapping("/api/user/profile")
+    public ResponseEntity<Optional<User>> getCurrentUserProfile(@AuthenticationPrincipal UserDetails userDetails) {
+        if (userDetails == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not authenticated");
+        }
+
+        return userService.getUserByEmail(userDetails.getUsername());
+    }
+
     @GetMapping("/api/user")
     public ResponseEntity<List<User>> getAll(@RequestParam(required = false) String search) {
         if (search == null || search.isEmpty())
