@@ -3,9 +3,6 @@ name: Java CI/CD
 on:
   pull_request:
     branches: [ "main" ]
-    paths:
-      - '**/*.java'
-      - 'pom.xml'
 
 permissions:
   contents: read
