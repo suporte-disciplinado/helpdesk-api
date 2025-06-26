@@ -4,9 +4,6 @@ on:
   workflow_dispatch:
   pull_request:
     branches: [ "main" ]
-    paths:
-      - '**/*.java'
-      - 'pom.xml'
 
 permissions:
   contents: read
