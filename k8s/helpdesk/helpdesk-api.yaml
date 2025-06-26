@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: helpdesk-api-deploy
+  namespace: helpdesk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: helpdesk-api
+  template:
+    metadata:
+      labels:
+        app: helpdesk-api
+    spec:
+      containers:
+        - name: helpdesk-api
+          image: betofrasson/helpdesk-api:latest
+          imagePullPolicy: Always
+      restartPolicy: Always
