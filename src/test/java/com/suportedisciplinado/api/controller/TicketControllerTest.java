@@ -2,7 +2,10 @@ package com.suportedisciplinado.api.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.suportedisciplinado.api.config.SecurityConfigTest;
+import com.suportedisciplinado.api.model.Role;
 import com.suportedisciplinado.api.model.Ticket;
+import com.suportedisciplinado.api.model.User;
+import com.suportedisciplinado.api.security.CustomUserDetails;
 import com.suportedisciplinado.api.service.TicketService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +14,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,9 +41,21 @@ class TicketControllerTest {
     private TicketService service;
 
     @Test
+    @WithMockUser(username = "admin@gmail.com", roles = {"ADMIN"}, password = "1234")
+    void shouldReturnAllTicketsForAdmin() throws Exception {
+        when(service.getAllTickets(any(CustomUserDetails.class), isNull(), isNull()))
+                .thenReturn(ResponseEntity.ok(List.of(new Ticket())));
+
+        mockMvc.perform(get("/api/ticket")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+    }
+
+    @Test
     @WithMockUser(username = "betofrassoncb@gmail.com", roles = {"USER"}, password = "1234")
-    void shouldReturnAllTickets() throws Exception {
-        when(service.getAllTickets()).thenReturn(ResponseEntity.ok(List.of(new Ticket())));
+    void shouldReturnAllTicketsForUser() throws Exception {
+        when(service.getAllTickets(any(CustomUserDetails.class), isNull(), isNull()))
+                .thenReturn(ResponseEntity.ok(List.of(new Ticket())));
 
         mockMvc.perform(get("/api/ticket")
                 .contentType(MediaType.APPLICATION_JSON))
@@ -61,9 +77,21 @@ class TicketControllerTest {
     @Test
     @WithMockUser
     void shouldCreateTicket() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("admin@teste.com");
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         Ticket ticket = new Ticket();
         ticket.setTitle("Test Ticket");
         ticket.setDescription("Test Description");
+        ticket.setUser(user);
+        ticket.setAssignedAgent(user);
 
         when(service.createTicket(any(Ticket.class))).thenReturn(ResponseEntity.ok("Ticket created successfully!"));
 

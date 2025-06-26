@@ -5,11 +5,11 @@ import com.suportedisciplinado.api.repository.TicketAttachmentRepository;
 import com.suportedisciplinado.api.repository.TicketCommentRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import com.suportedisciplinado.api.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class TicketAttachmentServiceTest {
 
     @Mock
@@ -36,11 +37,6 @@ class TicketAttachmentServiceTest {
     @InjectMocks
     private TicketAttachmentService service;
 
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
     void testFindAll() {
         when(attachmentRepository.findAll()).thenReturn(List.of(new TicketAttachment()));
@@ -52,7 +48,7 @@ class TicketAttachmentServiceTest {
     void testGetAttachmentById() {
         TicketAttachment attachment = new TicketAttachment();
         attachment.setId(1L);
-        when(attachmentRepository.getOne(1L)).thenReturn(attachment);
+        when(attachmentRepository.findById(1L)).thenReturn(Optional.of(attachment));
 
         ResponseEntity<TicketAttachment> response = service.getAttachmentById(1L);
         assertEquals(1L, response.getBody().getId());
@@ -72,10 +68,6 @@ class TicketAttachmentServiceTest {
         attachment.setUser(user);
         attachment.setTicket(ticket);
         attachment.setComment(comment);
-
-        when(userRepository.getOne(1L)).thenReturn(user);
-        when(ticketRepository.getOne(1L)).thenReturn(ticket);
-        when(ticketCommentRepository.getOne(1L)).thenReturn(comment);
 
         when(attachmentRepository.saveAndFlush(any(TicketAttachment.class))).thenReturn(attachment);
 
@@ -104,10 +96,7 @@ class TicketAttachmentServiceTest {
         update.setFilePath("/file.txt");
         update.setFileType("text/plain");
 
-        when(attachmentRepository.getOne(1L)).thenReturn(original);
-        when(userRepository.getOne(1L)).thenReturn(user);
-        when(ticketRepository.getOne(1L)).thenReturn(ticket);
-        when(ticketCommentRepository.getOne(1L)).thenReturn(comment);
+        when(attachmentRepository.findById(1L)).thenReturn(Optional.of(original));
 
         ResponseEntity<String> response = service.updateAttachment(update);
         assertEquals("Attachment updated successfully!", response.getBody());

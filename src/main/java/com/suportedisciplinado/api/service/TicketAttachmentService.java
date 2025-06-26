@@ -41,7 +41,9 @@ public class TicketAttachmentService
     {
         Objects.requireNonNull(attachmentId, "The attachment id informed is null, please insert a valid id!");
 
-        TicketAttachment attachment = attachmentRepository.getReferenceById(attachmentId);
+        TicketAttachment attachment = attachmentRepository.findById(attachmentId)
+                .orElseThrow(() -> new NullPointerException("The attachment received is null, please pass a valid attachment!"));
+
         validateAttachment(attachment);
         return ResponseEntity.ok(attachment);
     }

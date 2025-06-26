@@ -1,20 +1,21 @@
 package com.suportedisciplinado.api.service;
 
 import com.suportedisciplinado.api.model.Category;
+import com.suportedisciplinado.api.model.Role;
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.User;
 import com.suportedisciplinado.api.repository.CategoryRepository;
 import com.suportedisciplinado.api.repository.TicketRepository;
 import com.suportedisciplinado.api.repository.UserRepository;
+import com.suportedisciplinado.api.security.CustomUserDetails;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -35,10 +36,16 @@ class TicketServiceTest {
 
     @Test
     void testGetAllTickets() {
-        Ticket ticket = new Ticket();
-        when(ticketRepository.findAll()).thenReturn(List.of(ticket));
+        User adminUser = new User();
+        adminUser.setRole(Role.ADMIN);
 
-        ResponseEntity<List<Ticket>> response = ticketService.getAllTickets();
+        CustomUserDetails userDetails = new CustomUserDetails(adminUser);
+
+        Ticket ticket = new Ticket();
+        when(ticketRepository.searchTickets(null, null))
+                .thenReturn(List.of(ticket));
+
+        ResponseEntity<List<Ticket>> response = ticketService.getAllTickets(userDetails, null, null);
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(1, response.getBody().size());
@@ -48,7 +55,7 @@ class TicketServiceTest {
     void testGetTicketById() {
         Ticket ticket = new Ticket();
         ticket.setId(1L);
-        when(ticketRepository.getOne(1L)).thenReturn(ticket);
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(ticket));
 
         ResponseEntity<Ticket> response = ticketService.getTicketById(1L);
 
@@ -70,8 +77,6 @@ class TicketServiceTest {
         ticket.setUser(user);
         ticket.setCategory(category);
 
-        when(userRepository.getOne(1L)).thenReturn(user);
-        when(categoryRepository.getOne(2L)).thenReturn(category);
         when(ticketRepository.saveAndFlush(any(Ticket.class))).thenReturn(ticket);
 
         ResponseEntity<String> response = ticketService.createTicket(ticket);
@@ -101,9 +106,7 @@ class TicketServiceTest {
         updatedTicket.setAssignedAgent(user);
         updatedTicket.setCategory(category);
 
-        when(ticketRepository.getOne(1L)).thenReturn(existingTicket);
-        when(userRepository.getOne(1L)).thenReturn(user);
-        when(categoryRepository.getOne(2L)).thenReturn(category);
+        when(ticketRepository.findById(1L)).thenReturn(Optional.of(existingTicket));
         when(ticketRepository.save(any(Ticket.class))).thenReturn(updatedTicket);
 
         ResponseEntity<String> response = ticketService.updateTicket(updatedTicket);

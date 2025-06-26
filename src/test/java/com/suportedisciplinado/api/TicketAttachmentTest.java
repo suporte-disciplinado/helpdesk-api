@@ -4,6 +4,7 @@ import com.suportedisciplinado.api.model.TicketAttachment;
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.model.User;
+import jakarta.validation.constraints.Min;
 import net.jqwik.api.Property;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Provide;

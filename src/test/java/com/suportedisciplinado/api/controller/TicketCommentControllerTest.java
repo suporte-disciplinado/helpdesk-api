@@ -5,6 +5,7 @@ import com.suportedisciplinado.api.config.SecurityConfigTest;
 import com.suportedisciplinado.api.model.Ticket;
 import com.suportedisciplinado.api.model.TicketComment;
 import com.suportedisciplinado.api.model.User;
+import com.suportedisciplinado.api.security.CustomUserDetails;
 import com.suportedisciplinado.api.service.TicketCommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -65,10 +68,20 @@ public class TicketCommentControllerTest {
     @Test
     @WithMockUser
     void shouldCreateComment() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("admin@teste.com");
+
+        CustomUserDetails userDetails = new CustomUserDetails(user);
+        UsernamePasswordAuthenticationToken auth =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        SecurityContextHolder.getContext().setAuthentication(auth);
+
         TicketComment comment = new TicketComment();
         comment.setComment("Comentário Teste");
         comment.setTicket(new Ticket());
-        comment.setUser(new User());
+        comment.setUser(user);
 
         when(ticketCommentService.createComment(any(TicketComment.class)))
                 .thenReturn(ResponseEntity.ok("Comment created successfully!"));

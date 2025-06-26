@@ -8,8 +8,6 @@ import net.jqwik.api.constraints.Positive;
 import net.jqwik.api.constraints.StringLength;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collections;
-
 import org.junit.jupiter.api.Test;
 
 public class CategoryTest {
@@ -42,7 +40,6 @@ public class CategoryTest {
         assertThat(category.getId()).isEqualTo(1L);
         assertThat(category.getName()).isNotBlank().isAlphabetic();
         assertThat(category.getDescription()).hasSizeBetween(100, 300);
-        assertThat(category.getTicketsList()).isEmpty();
     }
 
     @Test
@@ -51,9 +48,7 @@ public class CategoryTest {
         category.setId(2L);
         category.setName("Infra");
         category.setDescription("Infraestrutura básica da empresa");
-        category.setTicketsList(Collections.emptyList());
 
-        assertThat(category.getTicketsList()).isEmpty();
         assertThat(category.getName()).isEqualTo("Infra");
         assertThat(category.getDescription()).contains("Infraestrutura");
     }
