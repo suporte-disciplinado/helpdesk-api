@@ -1,11 +1,11 @@
 name: Java CI/CD
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-    paths:
-      - '**/*.java'
-      - 'pom.xml'
+
 
 permissions:
   contents: read
@@ -30,10 +30,10 @@ jobs:
         cache: maven
 
     - name: Build with Maven
-      run: mvn clean package -DskipTests
+      run: mvn clean package -Dspring.profiles.active=dev -DskipTests
 
     - name: Run tests with coverage
-      run: mvn verify
+      run: mvn verify -Dspring.profiles.active=dev
 
     - name: Add coverage to PR
       id: jacoco
